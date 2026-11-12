@@ -7,7 +7,7 @@ const MODELOS: { id: Modelo; nombre: string; api: string }[] = [
   { id: 'arome', nombre: 'AROME', api: 'meteofrance_arome_france_hd' },
   { id: 'ecmwf', nombre: 'ECMWF', api: 'ecmwf_ifs025' },
   { id: 'gfs', nombre: 'GFS', api: 'gfs_seamless' },
-  { id: 'icon', nombre: 'ICONO', api: 'icon_seamless' },
+  { id: 'icon', nombre: 'ICON', api: 'icon_seamless' },
 ]
 
 type DiaPrevision = {
