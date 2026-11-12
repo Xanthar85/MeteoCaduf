@@ -171,10 +171,10 @@ export default function Inicio() {
       </div>
 
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Próximas franjas</h2>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Tiempo</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
           {franjasMostrar.map((franja, i) => (
-            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '100px', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', textAlign: 'center' }}>
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '5px', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', textAlign: 'center' }}>
               <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{franja.dia}</span>
               <span style={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--accent-color)' }}>{franja.nombre}</span>
               <span style={{ fontSize: '1.5rem', margin: '5px 0' }}>{getIcono(franja.weather_code)}</span>
