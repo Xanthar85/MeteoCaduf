@@ -6,7 +6,7 @@ export default async function handler(
   response: VercelResponse,
 ) {
   try {
-    const url = 'https://www.avamet.org/mx-meteo.php?id=c03m027e02';
+    const url = 'https://www.avamet.org/mxo_i.php?id=c03m027e06';
     const res = await fetch(url);
     
     if (!res.ok) {
@@ -16,16 +16,20 @@ export default async function handler(
     const html = await res.text();
     const $ = cheerio.load(html);
 
-    // Extraer datos básicos (ejemplo de scraping)
-    const datos = {
-      temperatura: $('.temp').text().trim() || 'N/D',
-      humedad: $('.humitat').text().trim() || 'N/D',
-      viento: $('.vent').text().trim() || 'N/D',
-      lluvia: $('.pluja').text().trim() || 'N/D',
-      actualizado: new Date().toISOString(),
-    };
+    // Extraer datos usando los selectores exactos
+    const temperatura = $('#temp_mit').text().trim();
+    const humedad = $('#hrel').contents().filter(function() { return this.type === 'text'; }).text().trim() || $('#hrel').text().replace('Humitat', '').trim();
+    const viento = $('#vent').first().text().replace('Vent', '').trim();
+    const lluvia = $('#prec').first().text().replace('Pluja hui', '').trim();
+    const actualizado = $('#hora').text().trim();
 
-    response.status(200).json(datos);
+    response.status(200).json({
+      temperatura: temperatura || 'N/D',
+      humedad: humedad || 'N/D',
+      viento: viento || 'N/D',
+      lluvia: lluvia || 'N/D',
+      actualizado: actualizado || 'N/D',
+    });
   } catch (error) {
     console.error('Error en el proxy de AVAMET:', error);
     response.status(500).json({ error: 'No se pudieron obtener los datos de AVAMET' });
