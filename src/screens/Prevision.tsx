@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 type Modelo = 'harmonie' | 'ecmwf' | 'gfs' | 'icon'
 
 const MODELOS: { id: Modelo; nombre: string; api: string }[] = [
-  { id: 'harmonie', nombre: 'Harmonie', api: 'metno_harmonie' },
+  { id: 'harmonie', nombre: 'Harmonie', api: 'harmonie' },
   { id: 'ecmwf', nombre: 'ECMWF', api: 'ecmwf_ifs025' },
   { id: 'gfs', nombre: 'GFS', api: 'gfs_seamless' },
   { id: 'icon', nombre: 'ICON', api: 'icon_seamless' },
@@ -69,7 +69,7 @@ export default function Prevision() {
     setError(null)
     setDiaAbierto(null)
 
-    const modeloApi = MODELOS.find((m) => m.id === modelo)?.api ?? 'metno_harmonie'
+    const modeloApi = MODELOS.find((m) => m.id === modelo)?.api ?? 'harmonie'
     const url = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code,precipitation_probability_max&hourly=temperature_2m,precipitation_probability,wind_speed_10m,weather_code&timezone=Europe%2FMadrid&forecast_days=7&models=${modeloApi}`
 
     fetch(url)
