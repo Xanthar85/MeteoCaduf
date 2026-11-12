@@ -16,19 +16,27 @@ export default async function handler(
     const html = await res.text();
     const $ = cheerio.load(html);
 
-    // Extraer datos usando los selectores exactos
-    const temperatura = $('#temp_mit').text().trim();
-    const humedad = $('#hrel').contents().filter(function() { return this.type === 'text'; }).text().trim() || $('#hrel').text().replace('Humitat', '').trim();
-    const viento = $('#vent').first().text().replace('Vent', '').trim();
-    const lluvia = $('#prec').first().text().replace('Pluja hui', '').trim();
-    const actualizado = $('#hora').text().trim();
+    // Función auxiliar para limpiar textos
+    const limpiar = (texto: string, prefijo: string = '') => {
+      let limpio = texto.replace(/\s+/g, ' ').trim();
+      if (prefijo && limpio.startsWith(prefijo)) {
+        limpio = limpio.substring(prefijo.length).trim();
+      }
+      return limpio || 'N/D';
+    };
+
+    const temperatura = limpiar($('#temp_mit').text());
+    const humedad = limpiar($('#hrel').text(), 'Humitat');
+    const viento = limpiar($('#vent').first().text(), 'Vent');
+    const lluvia = limpiar($('#prec').first().text(), 'Pluja hui');
+    const actualizado = limpiar($('#hora').text());
 
     response.status(200).json({
-      temperatura: temperatura || 'N/D',
-      humedad: humedad || 'N/D',
-      viento: viento || 'N/D',
-      lluvia: lluvia || 'N/D',
-      actualizado: actualizado || 'N/D',
+      temperatura,
+      humedad,
+      viento,
+      lluvia,
+      actualizado,
     });
   } catch (error) {
     console.error('Error en el proxy de AVAMET:', error);
