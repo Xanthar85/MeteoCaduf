@@ -49,6 +49,24 @@ export default function App() {
             MeteoCaduf
           </h1>
           <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>Benicarló</p>
+          <a
+            href="https://ko-fi.com/xanthar"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-block',
+              marginTop: '8px',
+              fontSize: '0.75rem',
+              color: 'var(--accent-color)',
+              textDecoration: 'none',
+              padding: '4px 10px',
+              border: '1px solid var(--accent-color)',
+              borderRadius: '12px',
+              opacity: 0.9,
+            }}
+          >
+            ☕ Apoya a MeteoCaduf
+          </a>
         </header>
 
         {tab === 'inicio' && <Inicio />}
