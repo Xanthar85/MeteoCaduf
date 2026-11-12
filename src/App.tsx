@@ -15,15 +15,28 @@ const FOTOS = [
 
 type Tab = 'inicio' | 'prevision' | 'playas'
 
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
 const tabDesdeHash = (): Tab => {
   const h = window.location.hash.replace('#', '')
   if (h === 'prevision' || h === 'playas' || h === 'inicio') return h
   return 'inicio'
 }
 
+const esIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent)
+const esStandalone = () =>
+  window.matchMedia('(display-mode: standalone)').matches ||
+  (window.navigator as any).standalone === true
+
 export default function App() {
   const [tab, setTab] = useState<Tab>(tabDesdeHash())
   const [fotoActual, setFotoActual] = useState(FOTOS[0])
+  const [promptInstalacion, setPromptInstalacion] = useState<BeforeInstallPromptEvent | null>(null)
+  const [mostrarInstalar, setMostrarInstalar] = useState(false)
+  const [modoIOS, setModoIOS] = useState(false)
 
   useEffect(() => {
     const random = Math.floor(Math.random() * FOTOS.length)
@@ -35,6 +48,39 @@ export default function App() {
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
+
+  useEffect(() => {
+    if (esStandalone()) return
+
+    const onBeforeInstall = (e: Event) => {
+      e.preventDefault()
+      setPromptInstalacion(e as BeforeInstallPromptEvent)
+      setMostrarInstalar(true)
+    }
+    window.addEventListener('beforeinstallprompt', onBeforeInstall)
+
+    if (esIOS()) {
+      setModoIOS(true)
+      setMostrarInstalar(true)
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstall)
+    }
+  }, [])
+
+  const instalar = async () => {
+    if (modoIOS) {
+      return
+    }
+    if (!promptInstalacion) return
+    await promptInstalacion.prompt()
+    const eleccion = await promptInstalacion.userChoice
+    if (eleccion.outcome === 'accepted') {
+      setMostrarInstalar(false)
+    }
+    setPromptInstalacion(null)
+  }
 
   const cambiarTab = (nuevo: Tab) => {
     setTab(nuevo)
@@ -73,6 +119,74 @@ export default function App() {
         {tab === 'prevision' && <Prevision />}
         {tab === 'playas' && <Playas />}
       </div>
+
+      {mostrarInstalar && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.7)',
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+        }}>
+          <div style={{
+            background: '#1a1a1a',
+            border: '1px solid var(--accent-color)',
+            borderRadius: '12px',
+            padding: '25px',
+            maxWidth: '360px',
+            textAlign: 'center',
+          }}>
+            <h2 style={{ fontSize: '1.2rem', marginBottom: '10px', color: 'var(--accent-color)' }}>
+              Instala MeteoCaduf
+            </h2>
+            {modoIOS ? (
+              <p style={{ fontSize: '0.9rem', marginBottom: '15px', lineHeight: 1.5 }}>
+                Pulsa <strong>Compartir</strong> (el cuadrado con la flecha) y luego <strong>Añadir a pantalla de inicio</strong>.
+              </p>
+            ) : (
+              <p style={{ fontSize: '0.9rem', marginBottom: '15px', lineHeight: 1.5 }}>
+                Tenla siempre a mano en tu escritorio, sin abrir el navegador.
+              </p>
+            )}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button
+                onClick={() => setMostrarInstalar(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  color: 'var(--text-color)',
+                  border: 'none',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                }}
+              >
+                Ahora no
+              </button>
+              {!modoIOS && (
+                <button
+                  onClick={instalar}
+                  style={{
+                    background: 'var(--accent-color)',
+                    color: '#1a1a1a',
+                    border: 'none',
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  Instalar
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <nav className="bottom-nav">
         <button className={tab === 'inicio' ? 'active' : ''} onClick={() => cambiarTab('inicio')}>

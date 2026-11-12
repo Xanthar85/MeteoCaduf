@@ -1,3 +1,4 @@
+/* src/index.css */
 :root {
   --bg-color: #1a1a1a;
   --text-color: #f4f4f4;
@@ -75,3 +76,4 @@ body {
   color: var(--accent-color);
   font-weight: bold;
 }
+/* src/index.css */
