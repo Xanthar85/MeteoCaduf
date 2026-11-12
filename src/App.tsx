@@ -1,3 +1,4 @@
+// src/App.tsx
 import { useState, useEffect } from 'react'
 import Inicio from './screens/Inicio'
 import Prevision from './screens/Prevision'
@@ -12,14 +13,33 @@ const FOTOS = [
   "https://upload.wikimedia.org/wikipedia/commons/c/c9/Estacionblo.jpg"
 ]
 
+type Tab = 'inicio' | 'prevision' | 'playas'
+
+const tabDesdeHash = (): Tab => {
+  const h = window.location.hash.replace('#', '')
+  if (h === 'prevision' || h === 'playas' || h === 'inicio') return h
+  return 'inicio'
+}
+
 export default function App() {
-  const [tab, setTab] = useState<'inicio' | 'prevision' | 'playas'>('inicio')
+  const [tab, setTab] = useState<Tab>(tabDesdeHash())
   const [fotoActual, setFotoActual] = useState(FOTOS[0])
 
   useEffect(() => {
     const random = Math.floor(Math.random() * FOTOS.length)
     setFotoActual(FOTOS[random])
   }, [])
+
+  useEffect(() => {
+    const onHash = () => setTab(tabDesdeHash())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  const cambiarTab = (nuevo: Tab) => {
+    setTab(nuevo)
+    window.location.hash = nuevo
+  }
 
   return (
     <div className="app-container" style={{ backgroundImage: `url(${fotoActual})` }}>
@@ -37,16 +57,17 @@ export default function App() {
       </div>
 
       <nav className="bottom-nav">
-        <button className={tab === 'inicio' ? 'active' : ''} onClick={() => setTab('inicio')}>
+        <button className={tab === 'inicio' ? 'active' : ''} onClick={() => cambiarTab('inicio')}>
           Ahora
         </button>
-        <button className={tab === 'prevision' ? 'active' : ''} onClick={() => setTab('prevision')}>
+        <button className={tab === 'prevision' ? 'active' : ''} onClick={() => cambiarTab('prevision')}>
           Previsión
         </button>
-        <button className={tab === 'playas' ? 'active' : ''} onClick={() => setTab('playas')}>
+        <button className={tab === 'playas' ? 'active' : ''} onClick={() => cambiarTab('playas')}>
           Playas
         </button>
       </nav>
     </div>
   )
 }
+// src/App.tsx
