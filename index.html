@@ -1,79 +1,12 @@
-/* src/index.css */
-:root {
-  --bg-color: #1a1a1a;
-  --text-color: #f4f4f4;
-  --accent-color: #f39c12;
-  --nav-height: 64px;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  -webkit-font-smoothing: antialiased;
-}
-
-.app-container {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  position: relative;
-}
-
-.app-container::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 0;
-}
-
-.content {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  padding: 20px;
-  padding-bottom: calc(var(--nav-height) + 20px);
-  display: flex;
-  flex-direction: column;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: space-around;
-  padding: 15px;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
-  height: var(--nav-height);
-  align-items: center;
-}
-
-.bottom-nav button {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: 16px;
-  opacity: 0.6;
-  cursor: pointer;
-}
-
-.bottom-nav button.active {
-  opacity: 1;
-  color: var(--accent-color);
-  font-weight: bold;
-}
-/* src/index.css */
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MeteoCaduf</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

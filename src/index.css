@@ -2,6 +2,7 @@
   --bg-color: #1a1a1a;
   --text-color: #f4f4f4;
   --accent-color: #f39c12;
+  --nav-height: 64px;
 }
 
 * {
@@ -40,18 +41,24 @@ body {
   z-index: 1;
   flex: 1;
   padding: 20px;
+  padding-bottom: calc(var(--nav-height) + 20px);
   display: flex;
   flex-direction: column;
 }
 
 .bottom-nav {
-  position: relative;
-  z-index: 1;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
   display: flex;
   justify-content: space-around;
   padding: 15px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
+  height: var(--nav-height);
+  align-items: center;
 }
 
 .bottom-nav button {
