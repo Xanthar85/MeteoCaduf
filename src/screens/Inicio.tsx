@@ -1,3 +1,4 @@
+// src/screens/Inicio.tsx
 import { useState, useEffect } from 'react'
 
 type DatosAvamet = {
@@ -16,9 +17,15 @@ type DatosHorarios = {
   weather_code: number[]
 }
 
+type EstadoAvisos =
+  | { tipo: 'SIN_AVISOS'; actualizado: string }
+  | { tipo: 'HAY_AVISOS'; actualizado: string; enlace: string }
+  | { tipo: 'ERROR'; actualizado: string; detalle: string }
+
 export default function Inicio() {
   const [datos, setDatos] = useState<DatosAvamet | null>(null)
   const [horarios, setHorarios] = useState<DatosHorarios | null>(null)
+  const [avisos, setAvisos] = useState<EstadoAvisos | null>(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -30,6 +37,14 @@ export default function Inicio() {
       })
       .then((data: DatosAvamet) => setDatos(data))
       .catch((err) => setError(err.message))
+
+    fetch('/api/aemet')
+      .then((res) => {
+        if (!res.ok) throw new Error('Error al cargar avisos de AEMET')
+        return res.json()
+      })
+      .then((data: EstadoAvisos) => setAvisos(data))
+      .catch(() => setAvisos({ tipo: 'ERROR', actualizado: new Date().toISOString(), detalle: 'No se pudo consultar AEMET.' }))
 
     const url = 'https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&hourly=temperature_2m,precipitation_probability,wind_speed_10m,weather_code&timezone=Europe%2FMadrid&forecast_days=3'
     
@@ -56,18 +71,15 @@ export default function Inicio() {
     return <p style={{ textAlign: 'center', color: '#f39c12' }}>{error}</p>
   }
 
-  // Helper para agrupar por franjas de 8 horas
   const getFranjas = () => {
     if (!horarios) return []
     
     const ahora = new Date()
     const franjas = []
     
-    // Encontramos el índice de la hora actual
     let indiceActual = horarios.time.findIndex(t => new Date(t) > ahora)
     if (indiceActual === -1) indiceActual = 0
 
-    // Generamos las franjas
     for (let i = 0; i < 3; i++) {
       const idx = indiceActual + (i * 8)
       if (idx >= horarios.time.length) break
@@ -85,7 +97,7 @@ export default function Inicio() {
       const tempMedia = horasFranja.reduce((acc, { i }) => acc + horarios.temperature_2m[i], 0) / horasFranja.length
       const vientoMax = Math.max(...horasFranja.map(({ i }) => horarios.wind_speed_10m[i]))
       const probLluviaMax = Math.max(...horasFranja.map(({ i }) => horarios.precipitation_probability[i]))
-      const icono = horasFranja[Math.floor(horasFranja.length / 2)].i // Cogemos el icono de la mitad
+      const icono = horasFranja[Math.floor(horasFranja.length / 2)].i
 
       franjas.push({
         nombre: nombreFranja,
@@ -110,9 +122,31 @@ export default function Inicio() {
     return '⛈️';
   }
 
+  const renderAvisos = () => {
+    if (!avisos) {
+      return <p style={{ textAlign: 'center', opacity: 0.7 }}>Consultando avisos de AEMET...</p>
+    }
+    if (avisos.tipo === 'HAY_AVISOS') {
+      return (
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: '1rem', fontWeight: 'bold', color: '#f39c12', marginBottom: '10px' }}>
+            ⚠️ Hay avisos meteorológicos activos en la Comunitat Valenciana
+          </p>
+          <a href={avisos.enlace} target="_blank" rel="noopener noreferrer"
+             style={{ color: 'var(--accent-color)', textDecoration: 'underline', fontSize: '0.9rem' }}>
+            Ver avisos oficiales de AEMET
+          </a>
+        </div>
+      )
+    }
+    if (avisos.tipo === 'SIN_AVISOS') {
+      return <p style={{ textAlign: 'center', opacity: 0.7 }}>No hay avisos activos en la Comunitat Valenciana.</p>
+    }
+    return <p style={{ textAlign: 'center', color: '#f39c12' }}>{avisos.detalle}</p>
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      {/* Datos Actuales (AVAMET) */}
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
         <h2 style={{ fontSize: '1.2rem', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px' }}>Datos Actuales (AVAMET)</h2>
         
@@ -136,7 +170,6 @@ export default function Inicio() {
         </div>
       </div>
 
-      {/* Previsión por Franjas */}
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
         <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Próximas franjas</h2>
         <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
@@ -153,11 +186,10 @@ export default function Inicio() {
         </div>
       </div>
 
-      {/* Espacio para Alertas y Consejos */}
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
         <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Alertas y Consejos</h2>
-        <div style={{ padding: '15px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', textAlign: 'center', opacity: 0.7 }}>
-          <p>No hay alertas activas para Benicarló.</p>
+        <div style={{ padding: '15px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+          {renderAvisos()}
         </div>
       </div>
       
@@ -167,3 +199,4 @@ export default function Inicio() {
     </div>
   )
 }
+// src/screens/Inicio.tsx
