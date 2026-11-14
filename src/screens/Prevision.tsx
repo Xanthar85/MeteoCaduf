@@ -29,6 +29,9 @@ type DatosOpenMeteo = {
     precipitation_probability?: (number | null)[]
     weather_code: (number | null)[]
     wind_speed_10m: (number | null)[]
+    wind_gusts_10m: (number | null)[]
+    relative_humidity_2m: (number | null)[]
+    uv_index: (number | null)[]
   }
 }
 
@@ -46,7 +49,7 @@ export default function Prevision() {
     setError(null)
     
     const fetchData = async (modeloAUsar: string): Promise<DatosOpenMeteo> => {
-      const urlPrincipal = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_max&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m&timezone=Europe%2FMadrid&models=${modeloAUsar}&forecast_days=7`
+      const urlPrincipal = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_max&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,relative_humidity_2m,uv_index&timezone=Europe%2FMadrid&models=${modeloAUsar}&forecast_days=7`
       const urlUv = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=uv_index_max&timezone=Europe%2FMadrid&models=gfs_seamless&forecast_days=7`
 
       const [resPrincipal, resUv] = await Promise.all([
@@ -212,10 +215,13 @@ export default function Prevision() {
                       <p style={{ opacity: 0.7, textAlign: 'center' }}>No hay datos por horas disponibles.</p>
                     ) : (
                       horasDelDia.map(({ t, i }) => {
-                        const tempH = hourlyData?.temperature_2m[i]
-                        const precipH = hourlyData?.precipitation[i]
-                        const vientoH = hourlyData?.wind_speed_10m[i]
                         const codeH = hourlyData?.weather_code[i] ?? null
+                        const precipH = hourlyData?.precipitation[i]
+                        const tempH = hourlyData?.temperature_2m[i]
+                        const vientoH = hourlyData?.wind_speed_10m[i]
+                        const rachasH = hourlyData?.wind_gusts_10m[i]
+                        const hrH = hourlyData?.relative_humidity_2m[i]
+                        const uvH = hourlyData?.uv_index[i]
 
                         return (
                           <div
@@ -225,9 +231,12 @@ export default function Prevision() {
                           >
                             <span style={{ fontWeight: 'bold', color: 'var(--accent-color)' }}>{t.slice(11, 16)}</span>
                             <span style={{ fontSize: '1.1rem' }}>{getIcono(codeH)}</span>
-                            <span>{tempH === null || tempH === undefined ? '-' : `${Math.round(tempH)}°`}</span>
                             <span>{precipH === null || precipH === undefined ? '-' : `${precipH.toFixed(1)} mm`}</span>
+                            <span>{tempH === null || tempH === undefined ? '-' : `${Math.round(tempH)}°C`}</span>
                             <span>💨 {vientoH === null || vientoH === undefined ? '-' : `${Math.round(vientoH)} km/h`}</span>
+                            <span>Rachas: {rachasH === null || rachasH === undefined ? '-' : `${Math.round(rachasH)} km/h`}</span>
+                            <span>HR: {hrH === null || hrH === undefined ? '-' : `${Math.round(hrH)}%`}</span>
+                            <span>UV: {uvH === null || uvH === undefined ? '-' : uvH.toFixed(1)}</span>
                           </div>
                         )
                       })

@@ -76,7 +76,7 @@ export default function App() {
 
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', position: 'relative', zIndex: 2, pointerEvents: 'auto' }}>
             <a 
-              href="https://ko-fi.com/Xanthar85" 
+              href="https://ko-fi.com/xanthar" 
               target="_blank" 
               rel="noopener noreferrer"
               style={{
