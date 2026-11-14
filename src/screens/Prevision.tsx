@@ -1,3 +1,4 @@
+// src/screens/Prevision.tsx
 import { useState, useEffect } from 'react'
 
 type DiaPrevision = {
@@ -5,8 +6,10 @@ type DiaPrevision = {
   temperature_2m_max: number
   temperature_2m_min: number
   precipitation_sum: number
-  wind_speed_10m_max: number
   weather_code: number
+  wind_speed_10m_max: number
+  relative_humidity_2m_mean: number
+  uv_index_max: number
 }
 
 type DatosOpenMeteo = {
@@ -15,8 +18,10 @@ type DatosOpenMeteo = {
     temperature_2m_max: number[]
     temperature_2m_min: number[]
     precipitation_sum: number[]
-    wind_speed_10m_max: number[]
     weather_code: number[]
+    wind_speed_10m_max: number[]
+    relative_humidity_2m_mean: number[]
+    uv_index_max: number[]
   }
 }
 
@@ -30,8 +35,7 @@ export default function Prevision() {
     setCargando(true)
     setError(null)
     
-    // Pedimos 7 días de datos
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code&timezone=Europe%2FMadrid&models=${modelo}&forecast_days=7`
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_mean,uv_index_max&timezone=Europe%2FMadrid&models=${modelo}&forecast_days=7`
     
     fetch(url)
       .then((res) => {
@@ -39,19 +43,16 @@ export default function Prevision() {
         return res.json()
       })
       .then((data: DatosOpenMeteo) => {
-        // Verificamos si los últimos días tienen datos (por si el modelo no llega a tanto)
         const nuevosDias = data.daily.time.map((fecha, i) => {
-          // Si el modelo devuelve null o undefined para las temperaturas, lo tratamos como falta de datos
-          const max = data.daily.temperature_2m_max[i]
-          const min = data.daily.temperature_2m_min[i]
-          
           return {
             date: fecha,
-            temperature_2m_max: max,
-            temperature_2m_min: min,
+            temperature_2m_max: data.daily.temperature_2m_max[i],
+            temperature_2m_min: data.daily.temperature_2m_min[i],
             precipitation_sum: data.daily.precipitation_sum[i],
-            wind_speed_10m_max: data.daily.wind_speed_10m_max[i],
             weather_code: data.daily.weather_code[i],
+            wind_speed_10m_max: data.daily.wind_speed_10m_max[i],
+            relative_humidity_2m_mean: data.daily.relative_humidity_2m_mean[i],
+            uv_index_max: data.daily.uv_index_max[i],
           }
         })
         
@@ -70,6 +71,15 @@ export default function Prevision() {
 
   if (error) {
     return <p style={{ textAlign: 'center', color: '#f39c12' }}>{error}</p>
+  }
+
+  const getIcono = (code: number) => {
+    if (code === 0) return '☀️';
+    if (code <= 2) return '🌤️';
+    if (code <= 48) return '☁️';
+    if (code <= 67) return '🌧️';
+    if (code <= 77) return '❄️';
+    return '⛈️';
   }
 
   return (
@@ -91,31 +101,41 @@ export default function Prevision() {
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {dias.map((dia, index) => {
-            // Si la temperatura es null o 0, mostramos un guion para indicar que no hay datos para ese día con ese modelo
-            const tempMax = dia.temperature_2m_max === null ? '-' : Math.round(dia.temperature_2m_max)
-            const tempMin = dia.temperature_2m_min === null ? '-' : Math.round(dia.temperature_2m_min)
-            
+            const tempMax = dia.temperature_2m_max === null || dia.temperature_2m_max === undefined ? '-' : Math.round(dia.temperature_2m_max)
+            const tempMin = dia.temperature_2m_min === null || dia.temperature_2m_min === undefined ? '-' : Math.round(dia.temperature_2m_min)
+            const precip = dia.precipitation_sum === null || dia.precipitation_sum === undefined ? '-' : dia.precipitation_sum.toFixed(1)
+            const viento = dia.wind_speed_10m_max === null || dia.wind_speed_10m_max === undefined ? '-' : Math.round(dia.wind_speed_10m_max)
+            const hr = dia.relative_humidity_2m_mean === null || dia.relative_humidity_2m_mean === undefined ? '-' : Math.round(dia.relative_humidity_2m_mean)
+            const uv = dia.uv_index_max === null || dia.uv_index_max === undefined ? '-' : dia.uv_index_max.toFixed(1)
+
             return (
-              <div key={dia.date} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', fontSize: '0.9rem' }}>
-                <div style={{ fontWeight: 'bold' }}>
-                  {index === 0 ? 'Hoy' : new Date(dia.date).toLocaleDateString('es-ES', { weekday: 'short' })}
+              <div key={dia.date} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'center', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', fontSize: '0.85rem', textAlign: 'center' }}>
+                <div style={{ fontWeight: 'bold', textAlign: 'left' }}>
+                  {index === 0 ? 'Hoy' : new Date(dia.date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' })}
                 </div>
-                <div>
-                  <span style={{ color: '#e74c3c' }}>{tempMax}°</span>
-                  <span style={{ opacity: 0.5 }}> / </span>
-                  <span style={{ color: '#3498db' }}>{tempMin}°</span>
-                </div>
-                <div>
-                  {dia.precipitation_sum === null ? '-' : `${dia.precipitation_sum} mm`}
-                </div>
-                <div style={{ opacity: 0.8 }}>
-                  {Math.round(dia.wind_speed_10m_max)} km/h
-                </div>
+                <div style={{ fontSize: '1.2rem' }}>{dia.weather_code !== null ? getIcono(dia.weather_code) : '-'}</div>
+                <div>{precip} mm</div>
+                <div><span style={{ color: '#e74c3c' }}>{tempMax}°</span></div>
+                <div><span style={{ color: '#3498db' }}>{tempMin}°</span></div>
+                <div>{viento} km/h</div>
+                <div>{hr}%</div>
+                <div>{uv}</div>
               </div>
             )
           })}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr', gap: '8px', fontSize: '0.65rem', opacity: 0.6, marginTop: '5px', textAlign: 'center', padding: '0 10px' }}>
+          <span style={{ textAlign: 'left' }}>Día</span>
+          <span>Icono</span>
+          <span>Precip.</span>
+          <span>Máx</span>
+          <span>Mín</span>
+          <span>V. Medio</span>
+          <span>HR</span>
+          <span>UV</span>
         </div>
       </div>
     </div>
   )
 }
+// src/screens/Prevision.tsx

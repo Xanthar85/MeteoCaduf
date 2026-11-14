@@ -1,3 +1,4 @@
+// src/App.tsx
 import { useState, useEffect } from 'react'
 import Inicio from './screens/Inicio'
 import Prevision from './screens/Prevision'
@@ -85,3 +86,4 @@ export default function App() {
     </div>
   )
 }
+// src/App.tsx

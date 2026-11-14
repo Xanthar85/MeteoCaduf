@@ -76,4 +76,16 @@ body {
   color: var(--accent-color);
   font-weight: bold;
 }
-/* src/index.css */
+
+/* Ajustes para móvil en las tablas */
+@media (max-width: 480px) {
+  .content {
+    padding: 10px;
+    padding-bottom: calc(var(--nav-height) + 10px);
+  }
+  
+  /* Forzar un tamaño de letra más pequeño en las tablas para que quepan */
+  .grid-table-text {
+    font-size: 0.7rem !important;
+  }
+}
