@@ -49,6 +49,7 @@ export default async function handler(
     presEl.find('.dess, br, .unit').remove();
     const presion = presEl.text().trim() || 'N/D';
 
+    response.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     response.status(200).json({
       temperatura,
       humedad,
