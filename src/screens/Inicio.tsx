@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 
 type DatosAvamet = {
+  temp?: string
   temperatura: string
   humedad: string
   viento: string
@@ -47,12 +48,23 @@ export default function Inicio() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/avamet')
+    fetch('/api/avamet', { cache: 'no-store' })
       .then((res) => {
         if (!res.ok) throw new Error('Error al cargar datos de AVAMET')
         return res.json()
       })
-      .then((data: DatosAvamet) => setDatos(data))
+      .then((data: DatosAvamet) => {
+        setDatos({
+          temperatura: data.temperatura || data.temp || 'N/D',
+          humedad: data.humedad || 'N/D',
+          viento: data.viento || 'N/D',
+          lluvia: data.lluvia || 'N/D',
+          presion: data.presion || 'N/D',
+          tempMax: data.tempMax || 'N/D',
+          tempMin: data.tempMin || 'N/D',
+          actualizado: data.actualizado || 'N/D',
+        })
+      })
       .catch((err) => setError(err.message))
 
     fetch('/api/aemet')
