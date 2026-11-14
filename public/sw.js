@@ -26,7 +26,6 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Para el HTML y el JS, vamos a la red primero para evitar pantallas blancas
   if (event.request.mode === 'navigate' || event.request.url.includes('/assets/')) {
     event.respondWith(
       fetch(event.request).catch(() => caches.match('/index.html'))
@@ -34,7 +33,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Para el resto, cache-first
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return (
@@ -51,4 +49,3 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-// public/sw.js

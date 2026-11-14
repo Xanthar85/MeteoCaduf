@@ -1,4 +1,3 @@
-// src/App.tsx
 import { useState, useEffect } from 'react'
 import Inicio from './screens/Inicio'
 import Prevision from './screens/Prevision'
@@ -41,29 +40,50 @@ export default function App() {
             MeteoCaduf
           </h1>
           <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>Benicarló</p>
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <a 
+              href="https://ko-fi.com/Xanthar85" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'rgba(243, 156, 18, 0.2)',
+                border: '1px solid var(--accent-color)',
+                color: 'var(--accent-color)',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                textDecoration: 'none',
+                fontSize: '0.85rem',
+                fontWeight: 'bold'
+              }}
+            >
+              ☕ Apoya a MeteoCaduf
+            </a>
+          </div>
           
-          {/* Botón de compartir */}
           <button 
             onClick={compartirApp} 
             style={{ 
               position: 'absolute', 
               top: '0', 
               right: '0', 
-              background: 'rgba(255,255,255,0.2)', 
+              background: 'transparent', 
               border: 'none', 
-              borderRadius: '50%', 
-              width: '40px', 
-              height: '40px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
               cursor: 'pointer',
-              color: 'white',
-              fontSize: '1.2rem'
+              padding: '5px'
             }}
             title="Compartir app"
           >
-            ↗️
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
           </button>
         </header>
 
@@ -86,4 +106,3 @@ export default function App() {
     </div>
   )
 }
-// src/App.tsx

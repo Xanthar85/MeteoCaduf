@@ -1,0 +1,684 @@
+TAREA: REDISEÑO COMPLETO DE LA UI Y LÓGICA DE LA APP
+Archivos: src/App.tsx, src/screens/Inicio.tsx, src/screens/Prevision.tsx, src/index.css, public/sw.js
+
+INSTRUCCIONES GENERALES:
+Vas a reescribir completamente los 5 archivos indicados. No modifiques ningún otro archivo. No refactorices nada más. Sustituye el contenido completo de cada archivo por el que se proporciona a continuación.
+
+--- INICIO ARCHIVO: src/App.tsx ---
+import { useState, useEffect } from 'react'
+import Inicio from './screens/Inicio'
+import Prevision from './screens/Prevision'
+import Playas from './screens/Playas'
+
+const FOTOS = [
+  "https://upload.wikimedia.org/wikipedia/commons/6/67/Antiga_pres%C3%B3_de_Benicarl%C3%B3.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/e/e7/Esgl%C3%A9sia_de_Sant_Bartomeu.JPG",
+  "https://upload.wikimedia.org/wikipedia/commons/6/66/Casa_Marqu%C3%A9s_de_Benicarl%C3%B3.JPG",
+  "https://upload.wikimedia.org/wikipedia/commons/0/09/Ajuntament_de_Benicarl%C3%B3.webp",
+  "https://upload.wikimedia.org/wikipedia/commons/c/c9/Estacionblo.jpg"
+]
+
+export default function App() {
+  const [tab, setTab] = useState<'inicio' | 'prevision' | 'playas'>('inicio')
+  const [fotoActual, setFotoActual] = useState(FOTOS[0])
+
+  useEffect(() => {
+    const random = Math.floor(Math.random() * FOTOS.length)
+    setFotoActual(FOTOS[random])
+  }, [])
+
+  const compartirApp = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'MeteoCaduf',
+        text: 'Mira el tiempo en Benicarló con MeteoCaduf',
+        url: window.location.origin,
+      }).catch((error) => console.log('Error al compartir', error));
+    } else {
+      alert('Tu navegador no soporta la función de compartir. Puedes copiar la URL: ' + window.location.origin);
+    }
+  };
+
+  return (
+    <div className="app-container" style={{ backgroundImage: `url(${fotoActual})` }}>
+      <div className="content">
+        <header style={{ textAlign: 'center', marginBottom: '20px', position: 'relative' }}>
+          <h1 style={{ fontSize: '2rem', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+            MeteoCaduf
+          </h1>
+          <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>Benicarló</p>
+          
+          <button 
+            onClick={compartirApp} 
+            style={{ 
+              position: 'absolute', 
+              top: '0', 
+              right: '0', 
+              background: 'transparent', 
+              border: 'none', 
+              cursor: 'pointer',
+              padding: '5px'
+            }}
+            title="Compartir app"
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+          </button>
+        </header>
+
+        {tab === 'inicio' && <Inicio />}
+        {tab === 'prevision' && <Prevision />}
+        {tab === 'playas' && <Playas />}
+        
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+          <a 
+            href="https://ko-fi.com/Xanthar85" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(243, 156, 18, 0.2)',
+              border: '1px solid var(--accent-color)',
+              color: 'var(--accent-color)',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              textDecoration: 'none',
+              fontSize: '0.85rem',
+              fontWeight: 'bold'
+            }}
+          >
+            ☕ Apoya a MeteoCaduf
+          </a>
+        </div>
+      </div>
+
+      <nav className="bottom-nav">
+        <button className={tab === 'inicio' ? 'active' : ''} onClick={() => setTab('inicio')}>
+          Ahora
+        </button>
+        <button className={tab === 'prevision' ? 'active' : ''} onClick={() => setTab('prevision')}>
+          Previsión
+        </button>
+        <button className={tab === 'playas' ? 'active' : ''} onClick={() => setTab('playas')}>
+          Playas
+        </button>
+      </nav>
+    </div>
+  )
+}
+--- FIN ARCHIVO: src/App.tsx ---
+
+--- INICIO ARCHIVO: src/index.css ---
+:root {
+  --bg-color: #1a1a1a;
+  --text-color: #f4f4f4;
+  --accent-color: #f39c12;
+  --nav-height: 64px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.app-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 20px;
+  padding-bottom: calc(var(--nav-height) + 20px);
+  display: flex;
+  flex-direction: column;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-around;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  height: var(--nav-height);
+  align-items: center;
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 16px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.bottom-nav button.active {
+  opacity: 1;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+--- FIN ARCHIVO: src/index.css ---
+
+--- INICIO ARCHIVO: src/screens/Inicio.tsx ---
+import { useState, useEffect } from 'react'
+
+type DatosAvamet = {
+  temperatura: string
+  humedad: string
+  viento: string
+  lluvia: string
+  actualizado: string
+}
+
+type DatosHorarios = {
+  time: string[]
+  temperature_2m: number[]
+  precipitation: number[]
+  weather_code: number[]
+  wind_speed_10m: number[]
+  wind_gusts_10m: number[]
+  relative_humidity_2m: number[]
+  uv_index: number[]
+}
+
+type EstadoAvisos =
+  | { tipo: 'SIN_AVISOS'; actualizado: string }
+  | { tipo: 'HAY_AVISOS'; actualizado: string; enlace: string }
+  | { tipo: 'ERROR'; actualizado: string; detalle: string }
+
+type Franja = {
+  nombre: string
+  dia: string
+  tempMedia: number
+  precipTotal: number
+  weather_code: number
+  vientoMedio: number
+  rachasMax: number
+  humedadMedia: number
+  uvMax: number
+}
+
+export default function Inicio() {
+  const [datos, setDatos] = useState<DatosAvamet | null>(null)
+  const [horarios, setHorarios] = useState<DatosHorarios | null>(null)
+  const [avisos, setAvisos] = useState<EstadoAvisos | null>(null)
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/avamet')
+      .then((res) => {
+        if (!res.ok) throw new Error('Error al cargar datos de AVAMET')
+        return res.json()
+      })
+      .then((data: DatosAvamet) => setDatos(data))
+      .catch((err) => setError(err.message))
+
+    fetch('/api/aemet')
+      .then((res) => {
+        if (!res.ok) throw new Error('Error al cargar avisos de AEMET')
+        return res.json()
+      })
+      .then((data: EstadoAvisos) => setAvisos(data))
+      .catch(() => setAvisos({ tipo: 'ERROR', actualizado: new Date().toISOString(), detalle: 'No se pudo consultar AEMET.' }))
+
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,relative_humidity_2m,uv_index&timezone=Europe%2FMadrid&forecast_days=3'
+    
+    fetch(url)
+      .then((res) => {
+        if (!res.ok) throw new Error('Error al cargar datos de Open-Meteo')
+        return res.json()
+      })
+      .then((data: { hourly: DatosHorarios }) => {
+        setHorarios(data.hourly)
+        setCargando(false)
+      })
+      .catch((err) => {
+        setError(err.message)
+        setCargando(false)
+      })
+  }, [])
+
+  if (cargando) {
+    return <p style={{ textAlign: 'center' }}>Cargando datos...</p>
+  }
+
+  const getFranjas = (): Franja[] => {
+    if (!horarios) return []
+    
+    const ahora = new Date()
+    const franjas: Franja[] = []
+    
+    let indiceActual = horarios.time.findIndex(t => new Date(t) > ahora)
+    if (indiceActual === -1) indiceActual = 0
+
+    for (let i = 0; i < 3; i++) {
+      const idx = indiceActual + (i * 8)
+      if (idx >= horarios.time.length) break
+
+      const fechaInicio = new Date(horarios.time[idx])
+      const horaInicio = fechaInicio.getHours()
+      
+      let nombreFranja = ''
+      if (horaInicio >= 6 && horaInicio < 14) nombreFranja = 'Mañana'
+      else if (horaInicio >= 14 && horaInicio < 22) nombreFranja = 'Tarde'
+      else nombreFranja = 'Noche'
+
+      const horasFranja = horarios.time.slice(idx, idx + 8).map((t, j) => ({ t, i: idx + j }))
+      
+      const tempMedia = horasFranja.reduce((acc, { i }) => acc + (horarios.temperature_2m[i] ?? 0), 0) / horasFranja.length
+      const precipTotal = horasFranja.reduce((acc, { i }) => acc + (horarios.precipitation[i] ?? 0), 0)
+      const vientoMedio = horasFranja.reduce((acc, { i }) => acc + (horarios.wind_speed_10m[i] ?? 0), 0) / horasFranja.length
+      const rachasMax = Math.max(...horasFranja.map(({ i }) => horarios.wind_gusts_10m[i] ?? 0))
+      const humedadMedia = horasFranja.reduce((acc, { i }) => acc + (horarios.relative_humidity_2m[i] ?? 0), 0) / horasFranja.length
+      const uvMax = Math.max(...horasFranja.map(({ i }) => horarios.uv_index[i] ?? 0))
+      
+      const icono = horasFranja[Math.floor(horasFranja.length / 2)].i
+
+      franjas.push({
+        nombre: nombreFranja,
+        dia: fechaInicio.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' }),
+        tempMedia,
+        precipTotal,
+        weather_code: horarios.weather_code[icono],
+        vientoMedio,
+        rachasMax,
+        humedadMedia,
+        uvMax
+      })
+    }
+    return franjas
+  }
+
+  const franjasMostrar = getFranjas()
+
+  const getIcono = (code: number) => {
+    if (code === 0) return '☀️';
+    if (code <= 2) return '🌤️';
+    if (code <= 48) return '☁️';
+    if (code <= 67) return '🌧️';
+    if (code <= 77) return '❄️';
+    return '⛈️';
+  }
+
+  const renderAvisos = () => {
+    if (!avisos) {
+      return <p style={{ textAlign: 'center', opacity: 0.7 }}>Consultando avisos de AEMET...</p>
+    }
+    if (avisos.tipo === 'HAY_AVISOS') {
+      return (
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: '1rem', fontWeight: 'bold', color: '#f39c12', marginBottom: '10px' }}>
+            ⚠️ Hay avisos meteorológicos activos en la Comunitat Valenciana
+          </p>
+          <a href={avisos.enlace} target="_blank" rel="noopener noreferrer"
+             style={{ color: 'var(--accent-color)', textDecoration: 'underline', fontSize: '0.9rem' }}>
+            Ver avisos oficiales de AEMET
+          </a>
+        </div>
+      )
+    }
+    if (avisos.tipo === 'SIN_AVISOS') {
+      return <p style={{ textAlign: 'center', opacity: 0.7 }}>No hay avisos activos en la Comunitat Valenciana.</p>
+    }
+    return <p style={{ textAlign: 'center', color: '#f39c12' }}>{avisos.detalle}</p>
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px' }}>Datos Actuales (AVAMET)</h2>
+        
+        {error ? (
+          <p style={{ color: '#f39c12', fontSize: '0.9rem' }}>No se pudieron cargar los datos de AVAMET.</p>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Temperatura</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.temperatura || 'N/D'}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Humedad</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.humedad || 'N/D'}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Viento</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.viento || 'N/D'}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Lluvia</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.lluvia || 'N/D'}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Tiempo</h2>
+        <div className="card-container">
+          {franjasMostrar.map((franja, i) => (
+            <div key={i} style={{ padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+              <div style={{ fontWeight: 'bold', color: 'var(--accent-color)', marginBottom: '8px' }}>
+                {franja.dia} - {franja.nombre}
+              </div>
+              <div className="card-row">
+                <span style={{ fontSize: '1.5rem' }}>{getIcono(franja.weather_code)}</span>
+                <span><strong>{Math.round(franja.tempMedia)}°</strong></span>
+                <span>{franja.precipTotal.toFixed(1)} mm</span>
+                <span>💨 {Math.round(franja.vientoMedio)} km/h</span>
+                <span>Rachas: {Math.round(franja.rachasMax)} km/h</span>
+                <span>HR: {Math.round(franja.humedadMedia)}%</span>
+                <span>UV: {franja.uvMax.toFixed(1)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Alertas y Consejos</h2>
+        <div style={{ padding: '15px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+          {renderAvisos()}
+        </div>
+      </div>
+      
+      <p style={{ fontSize: '0.7rem', opacity: 0.5, textAlign: 'center', marginTop: '10px' }}>
+        Actualizado: {datos ? datos.actualizado : 'N/D'}
+      </p>
+    </div>
+  )
+}
+--- FIN ARCHIVO: src/screens/Inicio.tsx ---
+
+--- INICIO ARCHIVO: src/screens/Prevision.tsx ---
+import { useState, useEffect } from 'react'
+
+type DiaPrevision = {
+  date: string
+  temperature_2m_max: number | null
+  temperature_2m_min: number | null
+  precipitation_sum: number | null
+  weather_code: number | null
+  wind_speed_10m_max: number | null
+  relative_humidity_2m_max: number | null
+  uv_index_max: number | null
+}
+
+type DatosOpenMeteo = {
+  daily: {
+    time: string[]
+    temperature_2m_max: number[]
+    temperature_2m_min: number[]
+    precipitation_sum: number[]
+    weather_code: number[]
+    wind_speed_10m_max: number[]
+    relative_humidity_2m_max: number[]
+    uv_index_max: number[]
+  }
+}
+
+export default function Prevision() {
+  const [dias, setDias] = useState<DiaPrevision[]>([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [modelo, setModelo] = useState('arome')
+  const [diaExpandido, setDiaExpandido] = useState<string | null>(null)
+
+  useEffect(() => {
+    setCargando(true)
+    setError(null)
+    
+    const fetchData = async (modeloAUsar: string) => {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_max,uv_index_max&timezone=Europe%2FMadrid&models=${modeloAUsar}&forecast_days=7`
+      const res = await fetch(url)
+      if (!res.ok) throw new Error('Error al cargar datos de Open-Meteo')
+      return res.json() as Promise<DatosOpenMeteo>
+    }
+
+    fetchData(modelo)
+      .then((data) => {
+        const tieneDatosSuficientes = data.daily.temperature_2m_max.slice(3).some(t => t !== null && t !== undefined)
+        
+        if (!tieneDatosSuficientes) {
+          return fetchData('icon').then((dataFallback) => {
+            const nuevosDias = dataFallback.daily.time.map((fecha, i) => ({
+              date: fecha,
+              temperature_2m_max: dataFallback.daily.temperature_2m_max[i],
+              temperature_2m_min: dataFallback.daily.temperature_2m_min[i],
+              precipitation_sum: dataFallback.daily.precipitation_sum[i],
+              weather_code: dataFallback.daily.weather_code[i],
+              wind_speed_10m_max: dataFallback.daily.wind_speed_10m_max[i],
+              relative_humidity_2m_max: dataFallback.daily.relative_humidity_2m_max[i],
+              uv_index_max: dataFallback.daily.uv_index_max[i],
+            }))
+            setDias(nuevosDias)
+          })
+        }
+
+        const nuevosDias = data.daily.time.map((fecha, i) => ({
+          date: fecha,
+          temperature_2m_max: data.daily.temperature_2m_max[i],
+          temperature_2m_min: data.daily.temperature_2m_min[i],
+          precipitation_sum: data.daily.precipitation_sum[i],
+          weather_code: data.daily.weather_code[i],
+          wind_speed_10m_max: data.daily.wind_speed_10m_max[i],
+          relative_humidity_2m_max: data.daily.relative_humidity_2m_max[i],
+          uv_index_max: data.daily.uv_index_max[i],
+        }))
+        setDias(nuevosDias)
+      })
+      .catch((err) => {
+        if (modelo !== 'icon') {
+          fetchData('icon')
+            .then((dataFallback) => {
+              const nuevosDias = dataFallback.daily.time.map((fecha, i) => ({
+                date: fecha,
+                temperature_2m_max: dataFallback.daily.temperature_2m_max[i],
+                temperature_2m_min: dataFallback.daily.temperature_2m_min[i],
+                precipitation_sum: dataFallback.daily.precipitation_sum[i],
+                weather_code: dataFallback.daily.weather_code[i],
+                wind_speed_10m_max: dataFallback.daily.wind_speed_10m_max[i],
+                relative_humidity_2m_max: dataFallback.daily.relative_humidity_2m_max[i],
+                uv_index_max: dataFallback.daily.uv_index_max[i],
+              }))
+              setDias(nuevosDias)
+            })
+            .catch((err2) => setError(err2.message))
+        } else {
+          setError(err.message)
+        }
+      })
+      .finally(() => setCargando(false))
+  }, [modelo])
+
+  if (cargando) {
+    return <p style={{ textAlign: 'center' }}>Cargando previsión...</p>
+  }
+
+  if (error) {
+    return <p style={{ textAlign: 'center', color: '#f39c12' }}>{error}</p>
+  }
+
+  const getIcono = (code: number | null) => {
+    if (code === null || code === undefined) return '-';
+    if (code === 0) return '☀️';
+    if (code <= 2) return '🌤️';
+    if (code <= 48) return '☁️';
+    if (code <= 67) return '🌧️';
+    if (code <= 77) return '❄️';
+    return '⛈️';
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <h2 style={{ fontSize: '1.2rem' }}>Previsión 7 días</h2>
+          <select 
+            value={modelo} 
+            onChange={(e) => setModelo(e.target.value)}
+            style={{ padding: '5px', borderRadius: '5px', background: '#333', color: 'white', border: '1px solid #555' }}
+          >
+            <option value="arome">AROME</option>
+            <option value="icon">ICON</option>
+            <option value="ecmwf">ECMWF</option>
+            <option value="gfs">GFS</option>
+          </select>
+        </div>
+        
+        <div className="card-container">
+          {dias.map((dia, index) => {
+            const tempMax = dia.temperature_2m_max === null || dia.temperature_2m_max === undefined ? '-' : Math.round(dia.temperature_2m_max)
+            const tempMin = dia.temperature_2m_min === null || dia.temperature_2m_min === undefined ? '-' : Math.round(dia.temperature_2m_min)
+            const precip = dia.precipitation_sum === null || dia.precipitation_sum === undefined ? '-' : dia.precipitation_sum.toFixed(1)
+            const viento = dia.wind_speed_10m_max === null || dia.wind_speed_10m_max === undefined ? '-' : Math.round(dia.wind_speed_10m_max)
+            const hr = dia.relative_humidity_2m_max === null || dia.relative_humidity_2m_max === undefined ? '-' : Math.round(dia.relative_humidity_2m_max)
+            const uv = dia.uv_index_max === null || dia.uv_index_max === undefined ? '-' : dia.uv_index_max.toFixed(1)
+            
+            const nombreDia = index === 0 ? 'Hoy' : new Date(dia.date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' })
+            const expandido = diaExpandido === dia.date
+
+            return (
+              <div key={dia.date} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '8px', overflow: 'hidden' }}>
+                <div 
+                  style={{ padding: '12px', cursor: 'pointer' }}
+                  onClick={() => setDiaExpandido(expandido ? null : dia.date)}
+                >
+                  <div style={{ fontWeight: 'bold', color: 'var(--accent-color)', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>{nombreDia}</span>
+                    <span>{expandido ? '▲' : '▼'}</span>
+                  </div>
+                  <div className="card-row">
+                    <span style={{ fontSize: '1.5rem' }}>{getIcono(dia.weather_code)}</span>
+                    <span><span style={{ color: '#e74c3c' }}>{tempMax}°</span> / <span style={{ color: '#3498db' }}>{tempMin}°</span></span>
+                    <span>{precip} mm</span>
+                    <span>💨 {viento} km/h</span>
+                    <span>HR: {hr}%</span>
+                    <span>UV: {uv}</span>
+                  </div>
+                </div>
+                {expandido && (
+                  <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem' }}>
+                    <p style={{ opacity: 0.7, textAlign: 'center' }}>Vista por horas disponible próximamente.</p>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+--- FIN ARCHIVO: src/screens/Prevision.tsx ---
+
+--- INICIO ARCHIVO: public/sw.js ---
+const CACHE_NAME = 'meteocaduf-v3';
+const ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.webmanifest'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (event.request.mode === 'navigate' || event.request.url.includes('/assets/')) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      return (
+        cached ||
+        fetch(event.request)
+          .then((response) => {
+            if (!response || response.status !== 200) return response;
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+            return response;
+          })
+          .catch(() => caches.match('/index.html'))
+      );
+    })
+  );
+});
+--- FIN ARCHIVO: public/sw.js ---
+
+PROHIBICIONES:
+No abras ningún otro archivo. No explores el proyecto. No refactorices. No toques nada que no se te haya pedido. Solo reescribe los 5 archivos indicados con el contenido exacto proporcionado.
+
+CONFIRMACIÓN:
+Al terminar, indica en el chat qué archivos has modificado (ruta exacta) y qué líneas has tocado.

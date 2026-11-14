@@ -1,4 +1,3 @@
-/* src/index.css */
 :root {
   --bg-color: #1a1a1a;
   --text-color: #f4f4f4;
@@ -27,6 +26,7 @@ body {
   background-position: center;
   background-attachment: fixed;
   position: relative;
+  overflow-x: hidden;
 }
 
 .app-container::before {
@@ -77,15 +77,16 @@ body {
   font-weight: bold;
 }
 
-/* Ajustes para móvil en las tablas */
-@media (max-width: 480px) {
-  .content {
-    padding: 10px;
-    padding-bottom: calc(var(--nav-height) + 10px);
-  }
-  
-  /* Forzar un tamaño de letra más pequeño en las tablas para que quepan */
-  .grid-table-text {
-    font-size: 0.7rem !important;
-  }
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
 }

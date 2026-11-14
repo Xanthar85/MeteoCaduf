@@ -1,4 +1,3 @@
-// src/screens/Inicio.tsx
 import { useState, useEffect } from 'react'
 
 type DatosAvamet = {
@@ -194,27 +193,21 @@ export default function Inicio() {
 
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
         <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Tiempo</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowX: 'auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr', gap: '8px', fontSize: '0.65rem', opacity: 0.6, textAlign: 'center', padding: '0 10px', minWidth: '600px' }}>
-            <span style={{ textAlign: 'left' }}>Día</span>
-            <span>Icono</span>
-            <span>Precip.</span>
-            <span>Temp</span>
-            <span>V. Medio</span>
-            <span>Rachas</span>
-            <span>HR</span>
-            <span>UV</span>
-          </div>
+        <div className="card-container">
           {franjasMostrar.map((franja, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'center', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', fontSize: '0.85rem', textAlign: 'center', minWidth: '600px' }}>
-              <span style={{ textAlign: 'left', fontSize: '0.75rem' }}>{franja.dia} <br /><strong>{franja.nombre}</strong></span>
-              <span style={{ fontSize: '1.2rem' }}>{getIcono(franja.weather_code)}</span>
-              <span>{franja.precipTotal.toFixed(1)} mm</span>
-              <span style={{ fontWeight: 'bold' }}>{Math.round(franja.tempMedia)}°</span>
-              <span>{Math.round(franja.vientoMedio)} km/h</span>
-              <span>{Math.round(franja.rachasMax)} km/h</span>
-              <span>{Math.round(franja.humedadMedia)}%</span>
-              <span>{franja.uvMax.toFixed(1)}</span>
+            <div key={i} style={{ padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+              <div style={{ fontWeight: 'bold', color: 'var(--accent-color)', marginBottom: '8px' }}>
+                {franja.dia} - {franja.nombre}
+              </div>
+              <div className="card-row">
+                <span style={{ fontSize: '1.5rem' }}>{getIcono(franja.weather_code)}</span>
+                <span><strong>{Math.round(franja.tempMedia)}°</strong></span>
+                <span>{franja.precipTotal.toFixed(1)} mm</span>
+                <span>💨 {Math.round(franja.vientoMedio)} km/h</span>
+                <span>Rachas: {Math.round(franja.rachasMax)} km/h</span>
+                <span>HR: {Math.round(franja.humedadMedia)}%</span>
+                <span>UV: {franja.uvMax.toFixed(1)}</span>
+              </div>
             </div>
           ))}
         </div>
@@ -233,4 +226,3 @@ export default function Inicio() {
     </div>
   )
 }
-// src/screens/Inicio.tsx
