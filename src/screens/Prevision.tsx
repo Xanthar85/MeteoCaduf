@@ -49,12 +49,14 @@ export default function Prevision() {
     setError(null)
     
     const fetchData = async (modeloAUsar: string): Promise<DatosOpenMeteo> => {
-      const urlPrincipal = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_max&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,relative_humidity_2m,uv_index&timezone=Europe%2FMadrid&models=${modeloAUsar}&forecast_days=7`
+      const urlPrincipal = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_max&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,relative_humidity_2m&timezone=Europe%2FMadrid&models=${modeloAUsar}&forecast_days=7`
       const urlUv = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=uv_index_max&timezone=Europe%2FMadrid&models=gfs_seamless&forecast_days=7`
+      const urlUvHorario = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&hourly=uv_index&timezone=Europe%2FMadrid&models=gfs_seamless&forecast_days=7`
 
-      const [resPrincipal, resUv] = await Promise.all([
+      const [resPrincipal, resUv, resUvHorario] = await Promise.all([
         fetch(urlPrincipal),
         fetch(urlUv),
+        fetch(urlUvHorario),
       ])
 
       if (!resPrincipal.ok) throw new Error('Error al cargar datos de Open-Meteo')
@@ -66,11 +68,29 @@ export default function Prevision() {
         uvArray = dataUv?.daily?.uv_index_max ?? []
       }
 
+      let uvHorarioArray: (number | null)[] = []
+      if (resUvHorario.ok) {
+        const dataUvHorario = await resUvHorario.json()
+        const uvTimes: string[] = dataUvHorario?.hourly?.time ?? []
+        const uvValues: (number | null)[] = dataUvHorario?.hourly?.uv_index ?? []
+        const uvPorHora = new Map<string, number | null>(
+          uvTimes.map((t: string, idx: number) => [t, uvValues[idx] ?? null])
+        )
+        const principalTimes: string[] = dataPrincipal?.hourly?.time ?? []
+        uvHorarioArray = principalTimes.map((t: string, idx: number) =>
+          uvPorHora.has(t) ? (uvPorHora.get(t) ?? null) : (uvValues[idx] ?? null)
+        )
+      }
+
       return {
         ...dataPrincipal,
         daily: {
           ...dataPrincipal.daily,
           uv_index_max: uvArray,
+        },
+        hourly: {
+          ...dataPrincipal.hourly,
+          uv_index: uvHorarioArray,
         },
       } as DatosOpenMeteo
     }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meteocaduf-v3';
+const CACHE_NAME = 'meteocaduf-v4';
 const ASSETS = [
   '/',
   '/index.html',
@@ -26,9 +26,9 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (event.request.mode === 'navigate' || event.request.url.includes('/assets/')) {
+  if (event.request.mode === 'navigate' || event.request.url.includes('/assets/') || url.pathname === '/manifest.webmanifest') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('/index.html'))
+      fetch(event.request).catch(() => caches.match(event.request))
     );
     return;
   }
