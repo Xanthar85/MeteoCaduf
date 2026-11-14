@@ -28,7 +28,7 @@ export default function Prevision() {
   const [dias, setDias] = useState<DiaPrevision[]>([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [modelo, setModelo] = useState('arome')
+  const [modelo, setModelo] = useState('meteofrance_arome_france_hd')
   const [diaExpandido, setDiaExpandido] = useState<string | null>(null)
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function Prevision() {
         const tieneDatosSuficientes = data.daily.temperature_2m_max.slice(3).some(t => t !== null && t !== undefined)
         
         if (!tieneDatosSuficientes) {
-          return fetchData('icon').then((dataFallback) => {
+          return fetchData('icon_seamless').then((dataFallback) => {
             const nuevosDias = dataFallback.daily.time.map((fecha, i) => ({
               date: fecha,
               temperature_2m_max: dataFallback.daily.temperature_2m_max[i],
@@ -75,8 +75,8 @@ export default function Prevision() {
         setDias(nuevosDias)
       })
       .catch((err) => {
-        if (modelo !== 'icon') {
-          fetchData('icon')
+        if (modelo !== 'icon_seamless') {
+          return fetchData('icon_seamless')
             .then((dataFallback) => {
               const nuevosDias = dataFallback.daily.time.map((fecha, i) => ({
                 date: fecha,
@@ -126,10 +126,10 @@ export default function Prevision() {
             onChange={(e) => setModelo(e.target.value)}
             style={{ padding: '5px', borderRadius: '5px', background: '#333', color: 'white', border: '1px solid #555' }}
           >
-            <option value="arome">AROME</option>
-            <option value="icon">ICON</option>
-            <option value="ecmwf">ECMWF</option>
-            <option value="gfs">GFS</option>
+            <option value="meteofrance_arome_france_hd">AROME</option>
+            <option value="icon_seamless">ICON</option>
+            <option value="ecmwf_ifs025">ECMWF</option>
+            <option value="gfs_seamless">GFS</option>
           </select>
         </div>
         
