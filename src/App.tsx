@@ -12,12 +12,45 @@ const FOTOS = [
 ]
 
 export default function App() {
-  const [tab, setTab] = useState<'inicio' | 'prevision' | 'playas'>('inicio')
+  const [tab, setTab] = useState<'inicio' | 'prevision' | 'playas'>(() => {
+    const guardado = localStorage.getItem('meteocaduf_tab')
+    if (guardado === 'inicio' || guardado === 'prevision' || guardado === 'playas') {
+      return guardado
+    }
+    return 'inicio'
+  })
   const [fotoActual, setFotoActual] = useState(FOTOS[0])
+  const [bannerInstalacion, setBannerInstalacion] = useState(false)
+  const [eventoInstalacion, setEventoInstalacion] = useState<any>(null)
+
+  useEffect(() => {
+    localStorage.setItem('meteocaduf_tab', tab)
+  }, [tab])
 
   useEffect(() => {
     const random = Math.floor(Math.random() * FOTOS.length)
     setFotoActual(FOTOS[random])
+  }, [])
+
+  useEffect(() => {
+    const manejarBeforeInstall = (e: Event) => {
+      e.preventDefault()
+      setEventoInstalacion(e)
+      setBannerInstalacion(true)
+    }
+
+    window.addEventListener('beforeinstallprompt', manejarBeforeInstall)
+    return () => window.removeEventListener('beforeinstallprompt', manejarBeforeInstall)
+  }, [])
+
+  useEffect(() => {
+    const manejarAppInstalled = () => {
+      setBannerInstalacion(false)
+      setEventoInstalacion(null)
+    }
+
+    window.addEventListener('appinstalled', manejarAppInstalled)
+    return () => window.removeEventListener('appinstalled', manejarAppInstalled)
   }, [])
 
   const compartirApp = () => {
@@ -86,6 +119,59 @@ export default function App() {
             </svg>
           </button>
         </header>
+
+        {bannerInstalacion && (
+          <div
+            style={{
+              background: 'rgba(243, 156, 18, 0.2)',
+              border: '1px solid var(--accent-color)',
+              borderRadius: '12px',
+              padding: '14px',
+              marginBottom: '15px',
+              textAlign: 'center',
+            }}
+          >
+            <p style={{ fontSize: '0.9rem', marginBottom: '10px' }}>
+              Instala MeteoCaduf en tu móvil para acceder más rápido
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+              <button
+                onClick={() => {
+                  if (eventoInstalacion) {
+                    eventoInstalacion.prompt()
+                  }
+                  setBannerInstalacion(false)
+                }}
+                style={{
+                  background: 'var(--accent-color)',
+                  color: '#1a1a1a',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '8px 14px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                }}
+              >
+                Instalar
+              </button>
+              <button
+                onClick={() => setBannerInstalacion(false)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  color: 'var(--text-color)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '8px 14px',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
 
         {tab === 'inicio' && <Inicio />}
         {tab === 'prevision' && <Prevision />}
