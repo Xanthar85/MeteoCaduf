@@ -6,7 +6,7 @@ export default async function handler(
   response: VercelResponse,
 ) {
   try {
-    const url = 'https://www.avamet.org/mxo_i.php?id=c03m027e06';
+    const url = 'https://www.avamet.org/mxo_i.php?id=c03m089e06';
     const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -20,6 +20,7 @@ export default async function handler(
     }
     
     const html = await res.text();
+    console.log('HTML AVAMET (primeros 500 chars):', html.substring(0, 500));
     const $ = cheerio.load(html);
 
     const limpiar = (texto: string, prefijo: string = '') => {
