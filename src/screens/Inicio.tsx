@@ -5,6 +5,9 @@ type DatosAvamet = {
   humedad: string
   viento: string
   lluvia: string
+  presion: string
+  tempMax: string
+  tempMin: string
   actualizado: string
 }
 
@@ -186,6 +189,18 @@ export default function Inicio() {
             <div>
               <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Lluvia</p>
               <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.lluvia || 'N/D'}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Presión (hPa)</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.presion || 'N/D'}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Máx Registrada (ºC)</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.tempMax || 'N/D'}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Mín Registrada (ºC)</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.tempMin || 'N/D'}</p>
             </div>
           </div>
         )}
