@@ -1,41 +1,35 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+// api/avamet.ts
+import { VercelRequest, VercelResponse } from '@vercel/node';
 import * as cheerio from 'cheerio';
 
-export default async function handler(
-  request: VercelRequest,
-  response: VercelResponse,
-) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    const url = 'https://www.avamet.org/mxo_i.php?id=c03m089e06';
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'es-ES,es;q=0.9,ca;q=0.8',
-      }
-    });
-    
-    if (!res.ok) {
-      throw new Error(`Error al obtener AVAMET: ${res.status} ${res.statusText}`);
+    const response = await fetch('https://www.avamet.org/mxd_estacio.php?id=c03m027e02&tipo=html');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
-    const html = await res.text();
-    console.log('HTML AVAMET (primeros 500 chars):', html.substring(0, 500));
+    const html = await response.text();
     const $ = cheerio.load(html);
 
-    const limpiar = (texto: string, prefijo: string = '') => {
-      let limpio = texto.replace(/\s+/g, ' ').trim();
-      if (prefijo && limpio.startsWith(prefijo)) {
-        limpio = limpio.substring(prefijo.length).trim();
-      }
-      return limpio || 'N/D';
-    };
+    // LOGS DE DIAGNÓSTICO
+    console.log('DEBUG temp_max HTML:', $('#temp_max').html());
+    console.log('DEBUG temp_min HTML:', $('#temp_min').html());
+    console.log('DEBUG pres HTML:', $('#pres').html());
 
-    const temperatura = limpiar($('#temp_mit').text());
-    const humedad = limpiar($('#hrel').text(), 'Humitat');
-    const viento = limpiar($('#vent').first().text(), 'Vent');
-    const lluvia = limpiar($('#prec').first().text(), 'Pluja hui');
-    const actualizado = limpiar($('#hora').text());
+    const tempEl = $('#temp').text().replace(/[º°]|&deg;/gi, '').trim();
+    const temp = tempEl || 'N/D';
+
+    const humEl = $('#hum').text().replace(/[%]/g, '').trim();
+    const humedad = humEl || 'N/D';
+
+    const vientoEl = $('#vel').text().replace(/[km\/h]/gi, '').trim();
+    const viento = vientoEl || 'N/D';
+
+    const dirEl = $('#dir').text().trim();
+    const direccion = dirEl || 'N/D';
+
+    const lluviaEl = $('#lluvia').text().replace(/[mm]/gi, '').trim();
+    const lluvia = lluviaEl || 'N/D';
 
     const tempMaxEl = $('#temp_max').clone();
     tempMaxEl.find('.temp_mit_l').remove();
@@ -49,19 +43,21 @@ export default async function handler(
     presEl.find('.dess, br, .unit').remove();
     const presion = presEl.text().trim() || 'N/D';
 
-    response.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    response.status(200).json({
-      temperatura,
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate');
+
+    return res.status(200).json({
+      temp,
       humedad,
       viento,
+      direccion,
       lluvia,
       presion,
       tempMax,
       tempMin,
-      actualizado,
     });
-  } catch (error: any) {
-    console.error('Error en el proxy de AVAMET:', error);
-    response.status(500).json({ error: 'No se pudieron obtener los datos de AVAMET', detalle: error.message || error });
+  } catch (error) {
+    console.error('Error fetching AVAMET:', error);
+    return res.status(500).json({ error: 'Error fetching AVAMET data' });
   }
 }
+// api/avamet.ts
