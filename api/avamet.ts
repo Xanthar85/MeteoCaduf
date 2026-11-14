@@ -11,11 +11,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // LOGS DE DIAGNÓSTICO
-    console.log('DEBUG temp_max HTML:', $('#temp_max').html());
-    console.log('DEBUG temp_min HTML:', $('#temp_min').html());
-    console.log('DEBUG pres HTML:', $('#pres').html());
-
     const tempEl = $('#temp').text().replace(/[º°]|&deg;/gi, '').trim();
     const temp = tempEl || 'N/D';
 
@@ -30,6 +25,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const lluviaEl = $('#lluvia').text().replace(/[mm]/gi, '').trim();
     const lluvia = lluviaEl || 'N/D';
+
+    // Extraemos el HTML crudo de esos 3 selectores para diagnóstico
+    const rawTempMax = $('#temp_max').html();
+    const rawTempMin = $('#temp_min').html();
+    const rawPres = $('#pres').html();
 
     const tempMaxEl = $('#temp_max').clone();
     tempMaxEl.find('.temp_mit_l').remove();
@@ -54,6 +54,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       presion,
       tempMax,
       tempMin,
+      _debug: {
+        rawTempMax,
+        rawTempMin,
+        rawPres
+      }
     });
   } catch (error) {
     console.error('Error fetching AVAMET:', error);
