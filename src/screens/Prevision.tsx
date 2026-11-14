@@ -20,7 +20,7 @@ type DatosOpenMeteo = {
     weather_code: number[]
     wind_speed_10m_max: number[]
     relative_humidity_2m_max: number[]
-    uv_index_max: number[]
+    uv_index_max: (number | null)[]
   }
   hourly: {
     time: string[]
@@ -45,11 +45,31 @@ export default function Prevision() {
     setCargando(true)
     setError(null)
     
-    const fetchData = async (modeloAUsar: string) => {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_max,uv_index_max&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m&timezone=Europe%2FMadrid&models=${modeloAUsar}&forecast_days=7`
-      const res = await fetch(url)
-      if (!res.ok) throw new Error('Error al cargar datos de Open-Meteo')
-      return res.json() as Promise<DatosOpenMeteo>
+    const fetchData = async (modeloAUsar: string): Promise<DatosOpenMeteo> => {
+      const urlPrincipal = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_max&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m&timezone=Europe%2FMadrid&models=${modeloAUsar}&forecast_days=7`
+      const urlUv = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=uv_index_max&timezone=Europe%2FMadrid&models=gfs_seamless&forecast_days=7`
+
+      const [resPrincipal, resUv] = await Promise.all([
+        fetch(urlPrincipal),
+        fetch(urlUv),
+      ])
+
+      if (!resPrincipal.ok) throw new Error('Error al cargar datos de Open-Meteo')
+      const dataPrincipal = await resPrincipal.json()
+
+      let uvArray: (number | null)[] = []
+      if (resUv.ok) {
+        const dataUv = await resUv.json()
+        uvArray = dataUv?.daily?.uv_index_max ?? []
+      }
+
+      return {
+        ...dataPrincipal,
+        daily: {
+          ...dataPrincipal.daily,
+          uv_index_max: uvArray,
+        },
+      } as DatosOpenMeteo
     }
 
     fetchData(modelo)
@@ -66,7 +86,7 @@ export default function Prevision() {
               weather_code: dataFallback.daily.weather_code[i],
               wind_speed_10m_max: dataFallback.daily.wind_speed_10m_max[i],
               relative_humidity_2m_max: dataFallback.daily.relative_humidity_2m_max[i],
-              uv_index_max: dataFallback.daily.uv_index_max[i],
+              uv_index_max: dataFallback.daily.uv_index_max[i] ?? null,
             }))
             setDias(nuevosDias)
             setHourlyData(dataFallback.hourly)
@@ -81,7 +101,7 @@ export default function Prevision() {
           weather_code: data.daily.weather_code[i],
           wind_speed_10m_max: data.daily.wind_speed_10m_max[i],
           relative_humidity_2m_max: data.daily.relative_humidity_2m_max[i],
-          uv_index_max: data.daily.uv_index_max[i],
+          uv_index_max: data.daily.uv_index_max[i] ?? null,
         }))
         setDias(nuevosDias)
         setHourlyData(data.hourly)
@@ -98,7 +118,7 @@ export default function Prevision() {
                 weather_code: dataFallback.daily.weather_code[i],
                 wind_speed_10m_max: dataFallback.daily.wind_speed_10m_max[i],
                 relative_humidity_2m_max: dataFallback.daily.relative_humidity_2m_max[i],
-                uv_index_max: dataFallback.daily.uv_index_max[i],
+                uv_index_max: dataFallback.daily.uv_index_max[i] ?? null,
               }))
               setDias(nuevosDias)
               setHourlyData(dataFallback.hourly)
