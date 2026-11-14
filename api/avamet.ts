@@ -36,16 +36,17 @@ export default async function handler(
     const lluvia = limpiar($('#prec').first().text(), 'Pluja hui');
     const actualizado = limpiar($('#hora').text());
 
-    const tempMaxRaw = $('#temp_max').text();
-    const tempMax = tempMaxRaw ? tempMaxRaw.replace(/m[àa]x/i, '').replace('°', '').trim() : 'N/D';
+    const tempMaxEl = $('#temp_max').clone();
+    tempMaxEl.find('.temp_mit_l').remove();
+    const tempMax = tempMaxEl.text().replace(/[º°]|&deg;/gi, '').trim() || 'N/D';
 
-    const tempMinRaw = $('#temp_min').text();
-    const tempMin = tempMinRaw ? tempMinRaw.replace(/m[íi]n/i, '').replace('°', '').trim() : 'N/D';
+    const tempMinEl = $('#temp_min').clone();
+    tempMinEl.find('.temp_mit_l').remove();
+    const tempMin = tempMinEl.text().replace(/[º°]|&deg;/gi, '').trim() || 'N/D';
 
-    const presRaw = $('#pres').text();
-    const presion = presRaw 
-      ? presRaw.replace(/Pressi[oó]\s+al\s+nivell\s+de\s+la\s+mar/i, '').replace(/hPa/i, '').trim() || 'N/D'
-      : 'N/D';
+    const presEl = $('#pres').clone();
+    presEl.find('.dess, br, .unit').remove();
+    const presion = presEl.text().trim() || 'N/D';
 
     response.status(200).json({
       temperatura,
