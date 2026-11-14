@@ -22,6 +22,14 @@ type DatosOpenMeteo = {
     relative_humidity_2m_max: number[]
     uv_index_max: number[]
   }
+  hourly: {
+    time: string[]
+    temperature_2m: (number | null)[]
+    precipitation: (number | null)[]
+    precipitation_probability?: (number | null)[]
+    weather_code: (number | null)[]
+    wind_speed_10m: (number | null)[]
+  }
 }
 
 export default function Prevision() {
@@ -30,13 +38,15 @@ export default function Prevision() {
   const [error, setError] = useState<string | null>(null)
   const [modelo, setModelo] = useState('meteofrance_arome_france_hd')
   const [diaExpandido, setDiaExpandido] = useState<string | null>(null)
+  const [horasExpandidas, setHorasExpandidas] = useState<string | null>(null)
+  const [hourlyData, setHourlyData] = useState<DatosOpenMeteo['hourly'] | null>(null)
 
   useEffect(() => {
     setCargando(true)
     setError(null)
     
     const fetchData = async (modeloAUsar: string) => {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_max,uv_index_max&timezone=Europe%2FMadrid&models=${modeloAUsar}&forecast_days=7`
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,relative_humidity_2m_max,uv_index_max&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m&timezone=Europe%2FMadrid&models=${modeloAUsar}&forecast_days=7`
       const res = await fetch(url)
       if (!res.ok) throw new Error('Error al cargar datos de Open-Meteo')
       return res.json() as Promise<DatosOpenMeteo>
@@ -59,6 +69,7 @@ export default function Prevision() {
               uv_index_max: dataFallback.daily.uv_index_max[i],
             }))
             setDias(nuevosDias)
+            setHourlyData(dataFallback.hourly)
           })
         }
 
@@ -73,6 +84,7 @@ export default function Prevision() {
           uv_index_max: data.daily.uv_index_max[i],
         }))
         setDias(nuevosDias)
+        setHourlyData(data.hourly)
       })
       .catch((err) => {
         if (modelo !== 'icon_seamless') {
@@ -89,6 +101,7 @@ export default function Prevision() {
                 uv_index_max: dataFallback.daily.uv_index_max[i],
               }))
               setDias(nuevosDias)
+              setHourlyData(dataFallback.hourly)
             })
             .catch((err2) => setError(err2.message))
         } else {
@@ -143,13 +156,22 @@ export default function Prevision() {
             const uv = dia.uv_index_max === null || dia.uv_index_max === undefined ? '-' : dia.uv_index_max.toFixed(1)
             
             const nombreDia = index === 0 ? 'Hoy' : new Date(dia.date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' })
-            const expandido = diaExpandido === dia.date
+            const expandido = diaExpandido === dia.date || horasExpandidas === dia.date
+            const horasDelDia = hourlyData
+              ? hourlyData.time
+                  .map((t, i) => ({ t, i }))
+                  .filter(({ t }) => t.startsWith(dia.date))
+              : []
 
             return (
               <div key={dia.date} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '8px', overflow: 'hidden' }}>
                 <div 
                   style={{ padding: '12px', cursor: 'pointer' }}
-                  onClick={() => setDiaExpandido(expandido ? null : dia.date)}
+                  onClick={() => {
+                    const siguiente = expandido ? null : dia.date
+                    setDiaExpandido(siguiente)
+                    setHorasExpandidas(siguiente)
+                  }}
                 >
                   <div style={{ fontWeight: 'bold', color: 'var(--accent-color)', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
                     <span>{nombreDia}</span>
@@ -165,8 +187,31 @@ export default function Prevision() {
                   </div>
                 </div>
                 {expandido && (
-                  <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem' }}>
-                    <p style={{ opacity: 0.7, textAlign: 'center' }}>Vista por horas disponible próximamente.</p>
+                  <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {horasDelDia.length === 0 ? (
+                      <p style={{ opacity: 0.7, textAlign: 'center' }}>No hay datos por horas disponibles.</p>
+                    ) : (
+                      horasDelDia.map(({ t, i }) => {
+                        const tempH = hourlyData?.temperature_2m[i]
+                        const precipH = hourlyData?.precipitation[i]
+                        const vientoH = hourlyData?.wind_speed_10m[i]
+                        const codeH = hourlyData?.weather_code[i] ?? null
+
+                        return (
+                          <div
+                            key={t}
+                            className="card-row"
+                            style={{ padding: '6px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }}
+                          >
+                            <span style={{ fontWeight: 'bold', color: 'var(--accent-color)' }}>{t.slice(11, 16)}</span>
+                            <span style={{ fontSize: '1.1rem' }}>{getIcono(codeH)}</span>
+                            <span>{tempH === null || tempH === undefined ? '-' : `${Math.round(tempH)}°`}</span>
+                            <span>{precipH === null || precipH === undefined ? '-' : `${precipH.toFixed(1)} mm`}</span>
+                            <span>💨 {vientoH === null || vientoH === undefined ? '-' : `${Math.round(vientoH)} km/h`}</span>
+                          </div>
+                        )
+                      })
+                    )}
                   </div>
                 )}
               </div>

@@ -74,7 +74,7 @@ export default function App() {
           </h1>
           <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>Benicarló</p>
 
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', position: 'relative', zIndex: 2, pointerEvents: 'auto' }}>
             <a 
               href="https://ko-fi.com/Xanthar85" 
               target="_blank" 
@@ -90,7 +90,11 @@ export default function App() {
                 borderRadius: '20px',
                 textDecoration: 'none',
                 fontSize: '0.85rem',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                position: 'relative',
+                zIndex: 2,
+                pointerEvents: 'auto',
+                cursor: 'pointer'
               }}
             >
               ☕ Apoya a MeteoCaduf
