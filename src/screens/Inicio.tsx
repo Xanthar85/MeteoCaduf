@@ -1,15 +1,27 @@
 import { useState, useEffect } from 'react'
 
 type DatosAvamet = {
-  temp?: string
-  temperatura: string
+  temp: string
   humedad: string
   viento: string
+  direccion: string
   lluvia: string
   presion: string
   tempMax: string
   tempMin: string
   actualizado: string
+}
+
+const AVAMET_MOCK: DatosAvamet = {
+  temp: '16,7',
+  humedad: '81%',
+  viento: '5 km/h NO',
+  direccion: 'NO',
+  lluvia: '0,0mm',
+  presion: '1.016',
+  tempMax: '20,1',
+  tempMin: '14,5',
+  actualizado: 'Datos de ejemplo',
 }
 
 type DatosHorarios = {
@@ -41,11 +53,11 @@ type Franja = {
 }
 
 export default function Inicio() {
-  const [datos, setDatos] = useState<DatosAvamet | null>(null)
+  const [datos, setDatos] = useState<DatosAvamet>(AVAMET_MOCK)
+  const [esMockAvamet, setEsMockAvamet] = useState(false)
   const [horarios, setHorarios] = useState<DatosHorarios | null>(null)
   const [avisos, setAvisos] = useState<EstadoAvisos | null>(null)
   const [cargando, setCargando] = useState(true)
-  const [errorAvamet, setErrorAvamet] = useState<string | null>(null)
   const [errorTiempo, setErrorTiempo] = useState<string | null>(null)
 
   useEffect(() => {
@@ -54,19 +66,24 @@ export default function Inicio() {
         if (!res.ok) throw new Error(`Error al cargar datos de AVAMET (${res.status})`)
         return res.json()
       })
-      .then((data: DatosAvamet) => {
+      .then((data) => {
         setDatos({
-          temperatura: data.temperatura || data.temp || 'N/D',
-          humedad: data.humedad || 'N/D',
-          viento: data.viento || 'N/D',
-          lluvia: data.lluvia || 'N/D',
-          presion: data.presion || 'N/D',
-          tempMax: data.tempMax || 'N/D',
-          tempMin: data.tempMin || 'N/D',
-          actualizado: data.actualizado || 'N/D',
+          temp: data.temp ?? data.temperatura ?? 'N/D',
+          humedad: data.humedad ?? 'N/D',
+          viento: data.viento ?? 'N/D',
+          direccion: data.direccion ?? 'N/D',
+          lluvia: data.lluvia ?? 'N/D',
+          presion: data.presion ?? 'N/D',
+          tempMax: data.tempMax ?? 'N/D',
+          tempMin: data.tempMin ?? 'N/D',
+          actualizado: data.actualizado ?? 'N/D',
         })
+        setEsMockAvamet(false)
       })
-      .catch((err) => setErrorAvamet(err instanceof Error ? err.message : 'Error desconocido en AVAMET'))
+      .catch(() => {
+        setDatos(AVAMET_MOCK)
+        setEsMockAvamet(true)
+      })
 
     fetch('/api/aemet')
       .then((res) => {
@@ -183,44 +200,48 @@ export default function Inicio() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px' }}>Datos Actuales (AVAMET)</h2>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px' }}>
+          Datos Actuales (AVAMET)
+          {esMockAvamet && (
+            <span style={{ fontSize: '0.75rem', opacity: 0.7, fontWeight: 'normal', marginLeft: '8px' }}>
+              (Datos de ejemplo)
+            </span>
+          )}
+        </h2>
         
-        {errorAvamet ? (
-          <p style={{ color: '#f39c12', fontSize: '0.9rem' }}>
-            No se pudieron cargar los datos de AVAMET ({errorAvamet}).
-          </p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            <div>
-              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Temperatura</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.temperatura || 'N/D'}</p>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Humedad</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.humedad || 'N/D'}</p>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Viento</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.viento || 'N/D'}</p>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Lluvia</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.lluvia || 'N/D'}</p>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Presión (hPa)</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.presion || 'N/D'}</p>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Máx Registrada (ºC)</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.tempMax || 'N/D'}</p>
-            </div>
-            <div>
-              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Mín Registrada (ºC)</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.tempMin || 'N/D'}</p>
-            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <div>
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Temperatura</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos.temp}</p>
           </div>
-        )}
+          <div>
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Humedad</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos.humedad}</p>
+          </div>
+          <div>
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Viento</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+              {datos.viento}
+              {datos.direccion && datos.direccion !== 'N/D' && !datos.viento.includes(datos.direccion) ? ` ${datos.direccion}` : ''}
+            </p>
+          </div>
+          <div>
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Lluvia</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos.lluvia}</p>
+          </div>
+          <div>
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Presión (hPa)</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos.presion}</p>
+          </div>
+          <div>
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Máx Registrada (ºC)</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos.tempMax}</p>
+          </div>
+          <div>
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Mín Registrada (ºC)</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos.tempMin}</p>
+          </div>
+        </div>
       </div>
 
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
@@ -259,7 +280,7 @@ export default function Inicio() {
       </div>
       
       <p style={{ fontSize: '0.7rem', opacity: 0.5, textAlign: 'center', marginTop: '10px' }}>
-        Actualizado: {datos ? datos.actualizado : 'N/D'}
+        Actualizado: {datos.actualizado}
       </p>
     </div>
   )
