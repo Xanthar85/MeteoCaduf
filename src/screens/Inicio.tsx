@@ -45,12 +45,13 @@ export default function Inicio() {
   const [horarios, setHorarios] = useState<DatosHorarios | null>(null)
   const [avisos, setAvisos] = useState<EstadoAvisos | null>(null)
   const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [errorAvamet, setErrorAvamet] = useState<string | null>(null)
+  const [errorTiempo, setErrorTiempo] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/avamet', { cache: 'no-store' })
+    const avametPromise = fetch('/api/avamet', { cache: 'no-store' })
       .then((res) => {
-        if (!res.ok) throw new Error('Error al cargar datos de AVAMET')
+        if (!res.ok) throw new Error(`Error al cargar datos de AVAMET (${res.status})`)
         return res.json()
       })
       .then((data: DatosAvamet) => {
@@ -65,7 +66,7 @@ export default function Inicio() {
           actualizado: data.actualizado || 'N/D',
         })
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => setErrorAvamet(err instanceof Error ? err.message : 'Error desconocido en AVAMET'))
 
     fetch('/api/aemet')
       .then((res) => {
@@ -76,20 +77,22 @@ export default function Inicio() {
       .catch(() => setAvisos({ tipo: 'ERROR', actualizado: new Date().toISOString(), detalle: 'No se pudo consultar AEMET.' }))
 
     const url = 'https://api.open-meteo.com/v1/forecast?latitude=40.418&longitude=0.425&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,relative_humidity_2m,uv_index&timezone=Europe%2FMadrid&forecast_days=3'
-    
-    fetch(url)
+
+    const tiempoPromise = fetch(url)
       .then((res) => {
-        if (!res.ok) throw new Error('Error al cargar datos de Open-Meteo')
+        if (!res.ok) throw new Error(`Error al cargar datos de Open-Meteo (${res.status})`)
         return res.json()
       })
       .then((data: { hourly: DatosHorarios }) => {
         setHorarios(data.hourly)
-        setCargando(false)
       })
       .catch((err) => {
-        setError(err.message)
-        setCargando(false)
+        setErrorTiempo(err instanceof Error ? err.message : 'Error desconocido en Open-Meteo')
       })
+
+    Promise.allSettled([avametPromise, tiempoPromise]).finally(() => {
+      setCargando(false)
+    })
   }, [])
 
   if (cargando) {
@@ -182,8 +185,10 @@ export default function Inicio() {
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
         <h2 style={{ fontSize: '1.2rem', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px' }}>Datos Actuales (AVAMET)</h2>
         
-        {error ? (
-          <p style={{ color: '#f39c12', fontSize: '0.9rem' }}>No se pudieron cargar los datos de AVAMET.</p>
+        {errorAvamet ? (
+          <p style={{ color: '#f39c12', fontSize: '0.9rem' }}>
+            No se pudieron cargar los datos de AVAMET ({errorAvamet}).
+          </p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
@@ -220,24 +225,30 @@ export default function Inicio() {
 
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
         <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Tiempo</h2>
-        <div className="card-container">
-          {franjasMostrar.map((franja, i) => (
-            <div key={i} style={{ padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-              <div style={{ fontWeight: 'bold', color: 'var(--accent-color)', marginBottom: '8px' }}>
-                {franja.dia} - {franja.nombre}
+        {errorTiempo ? (
+          <p style={{ color: '#f39c12', fontSize: '0.9rem' }}>
+            No se pudieron cargar los datos de Open-Meteo ({errorTiempo}).
+          </p>
+        ) : (
+          <div className="card-container">
+            {franjasMostrar.map((franja, i) => (
+              <div key={i} style={{ padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                <div style={{ fontWeight: 'bold', color: 'var(--accent-color)', marginBottom: '8px' }}>
+                  {franja.dia} - {franja.nombre}
+                </div>
+                <div className="card-row">
+                  <span style={{ fontSize: '1.5rem' }}>{getIcono(franja.weather_code)}</span>
+                  <span><strong>{Math.round(franja.tempMedia)}°</strong></span>
+                  <span>{franja.precipTotal.toFixed(1)} mm</span>
+                  <span>💨 {Math.round(franja.vientoMedio)} km/h</span>
+                  <span>Rachas: {Math.round(franja.rachasMax)} km/h</span>
+                  <span>HR: {Math.round(franja.humedadMedia)}%</span>
+                  <span>UV: {franja.uvMax.toFixed(1)}</span>
+                </div>
               </div>
-              <div className="card-row">
-                <span style={{ fontSize: '1.5rem' }}>{getIcono(franja.weather_code)}</span>
-                <span><strong>{Math.round(franja.tempMedia)}°</strong></span>
-                <span>{franja.precipTotal.toFixed(1)} mm</span>
-                <span>💨 {Math.round(franja.vientoMedio)} km/h</span>
-                <span>Rachas: {Math.round(franja.rachasMax)} km/h</span>
-                <span>HR: {Math.round(franja.humedadMedia)}%</span>
-                <span>UV: {franja.uvMax.toFixed(1)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
