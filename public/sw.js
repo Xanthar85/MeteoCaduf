@@ -1,10 +1,7 @@
-const CACHE_NAME = 'meteocaduf-v1';
+const CACHE_NAME = 'meteocaduf-v3';
 const ASSETS = [
   '/',
   '/index.html',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/icon-maskable-512.png',
   '/manifest.webmanifest'
 ];
 
@@ -29,6 +26,15 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Para el HTML y el JS, vamos a la red primero para evitar pantallas blancas
+  if (event.request.mode === 'navigate' || event.request.url.includes('/assets/')) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Para el resto, cache-first
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return (
@@ -45,3 +51,4 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+// public/sw.js

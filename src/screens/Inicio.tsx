@@ -82,10 +82,6 @@ export default function Inicio() {
     return <p style={{ textAlign: 'center' }}>Cargando datos...</p>
   }
 
-  if (error) {
-    return <p style={{ textAlign: 'center', color: '#f39c12' }}>{error}</p>
-  }
-
   const getFranjas = (): Franja[] => {
     if (!horarios) return []
     
@@ -172,31 +168,45 @@ export default function Inicio() {
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
         <h2 style={{ fontSize: '1.2rem', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px' }}>Datos Actuales (AVAMET)</h2>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-          <div>
-            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Temperatura</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.temperatura || 'N/D'}</p>
+        {error ? (
+          <p style={{ color: '#f39c12', fontSize: '0.9rem' }}>No se pudieron cargar los datos de AVAMET.</p>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Temperatura</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.temperatura || 'N/D'}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Humedad</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.humedad || 'N/D'}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Viento</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.viento || 'N/D'}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Lluvia</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.lluvia || 'N/D'}</p>
+            </div>
           </div>
-          <div>
-            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Humedad</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.humedad || 'N/D'}</p>
-          </div>
-          <div>
-            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Viento</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.viento || 'N/D'}</p>
-          </div>
-          <div>
-            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '5px' }}>Lluvia</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{datos?.lluvia || 'N/D'}</p>
-          </div>
-        </div>
+        )}
       </div>
 
       <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
         <h2 style={{ fontSize: '1.2rem', marginBottom: '15px' }}>Tiempo</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowX: 'auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr', gap: '8px', fontSize: '0.65rem', opacity: 0.6, textAlign: 'center', padding: '0 10px', minWidth: '600px' }}>
+            <span style={{ textAlign: 'left' }}>Día</span>
+            <span>Icono</span>
+            <span>Precip.</span>
+            <span>Temp</span>
+            <span>V. Medio</span>
+            <span>Rachas</span>
+            <span>HR</span>
+            <span>UV</span>
+          </div>
           {franjasMostrar.map((franja, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'center', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', fontSize: '0.85rem', textAlign: 'center' }}>
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'center', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', fontSize: '0.85rem', textAlign: 'center', minWidth: '600px' }}>
               <span style={{ textAlign: 'left', fontSize: '0.75rem' }}>{franja.dia} <br /><strong>{franja.nombre}</strong></span>
               <span style={{ fontSize: '1.2rem' }}>{getIcono(franja.weather_code)}</span>
               <span>{franja.precipTotal.toFixed(1)} mm</span>
@@ -207,16 +217,6 @@ export default function Inicio() {
               <span>{franja.uvMax.toFixed(1)}</span>
             </div>
           ))}
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr', gap: '8px', fontSize: '0.65rem', opacity: 0.6, marginTop: '5px', textAlign: 'center', padding: '0 10px' }}>
-          <span style={{ textAlign: 'left' }}>Día</span>
-          <span>Icono</span>
-          <span>Precip.</span>
-          <span>Temp</span>
-          <span>V. Medio</span>
-          <span>Rachas</span>
-          <span>HR</span>
-          <span>UV</span>
         </div>
       </div>
 
