@@ -1,7 +1,7 @@
 {
   "name": "MeteoCaduf",
   "short_name": "MeteoCaduf",
-  "description": "App meteorológica local para Benicarló con estética retro.",
+  "description": "App de meteorología local para Benicarlandos",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
