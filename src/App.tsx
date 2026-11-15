@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Inicio from './screens/Inicio'
 import Prevision from './screens/Prevision'
 import Playas from './screens/Playas'
+import { Analytics } from '@vercel/analytics/react';
 
 const FOTOS = [
   "https://upload.wikimedia.org/wikipedia/commons/6/67/Antiga_pres%C3%B3_de_Benicarl%C3%B3.jpg",
@@ -193,6 +194,7 @@ export default function App() {
           Playas
         </button>
       </nav>
+      <Analytics />
     </div>
   )
 }
