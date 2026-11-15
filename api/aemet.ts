@@ -2,8 +2,95 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { gunzipSync } from 'node:zlib';
+import * as cheerio from 'cheerio';
 
 const URL_AEMET = 'https://opendata.aemet.es/opendata/api/avisos_cap/ultimoelaborado/area/77';
+
+function normalizarTexto(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function esZonaCastellonLitoralNorte(areaDesc: string): boolean {
+  const norm = normalizarTexto(areaDesc);
+  if (!norm) return false;
+  if (norm.includes('benicarlo')) return true;
+  if (norm.includes('litoral norte de castellon') || norm.includes('litoral nord de castello')) return true;
+  if (norm.includes('aguas costeras de castellon') || norm.includes('aigues costaneres de castello')) return true;
+  if (norm.includes('castellon') || norm.includes('castello')) {
+    return !norm.includes('interior') && !norm.includes('litoral sur') && !norm.includes('litoral sud');
+  }
+  return false;
+}
+
+function hayAvisosActivosCastellon(payload: string, ahoraMs: number): boolean {
+  const alertasXml = payload.match(/<alert\b[\s\S]*?<\/alert>/gi) ?? [];
+  if (alertasXml.length === 0) return false;
+
+  const idsCancelados = new Set<string>();
+  const alertas = alertasXml.map((xml) => {
+    const $ = cheerio.load(xml, { xmlMode: true });
+    const identifier = $('alert > identifier').first().text().trim();
+    const status = normalizarTexto($('alert > status').first().text());
+    const msgType = normalizarTexto($('alert > msgType').first().text());
+    const references = $('alert > references').first().text().trim();
+
+    if (msgType === 'cancel' && references) {
+      for (const ref of references.split(/\s+/)) {
+        const refId = ref.split(',')[1]?.trim();
+        if (refId) idsCancelados.add(refId);
+      }
+    }
+
+    return { $, identifier, status, msgType };
+  });
+
+  for (const { $, identifier, status, msgType } of alertas) {
+    if (status && status !== 'actual') continue;
+    if (msgType === 'cancel' || msgType === 'error') continue;
+    if (identifier && idsCancelados.has(identifier)) continue;
+
+    let tieneInfoActiva = false;
+    $('alert > info').each((_, infoEl) => {
+      const info = $(infoEl);
+      const responseType = normalizarTexto(info.find('responseType').first().text());
+      if (responseType === 'allclear') return;
+
+      const expiresStr = info.find('expires').first().text().trim();
+      if (!expiresStr) return;
+      const expiresMs = Date.parse(expiresStr);
+      if (Number.isNaN(expiresMs) || expiresMs <= ahoraMs) return;
+
+      let nivelVerde = false;
+      info.find('parameter').each((__, paramEl) => {
+        const nombre = normalizarTexto($(paramEl).find('valueName').text());
+        const valor = normalizarTexto($(paramEl).find('value').text());
+        if (nombre.includes('nivel') && (valor === 'verde' || valor === 'green' || valor.includes('sin riesgo'))) {
+          nivelVerde = true;
+        }
+      });
+      if (nivelVerde) return;
+
+      let afectaZona = false;
+      info.find('area > areaDesc').each((__, areaEl) => {
+        if (esZonaCastellonLitoralNorte($(areaEl).text())) {
+          afectaZona = true;
+        }
+      });
+
+      if (afectaZona) {
+        tieneInfoActiva = true;
+      }
+    });
+
+    if (tieneInfoActiva) return true;
+  }
+
+  return false;
+}
 
 type EstadoAvisos =
   | { tipo: 'SIN_AVISOS'; actualizado: string }
@@ -86,13 +173,9 @@ export default async function handler(
             : Buffer.from(arrayBuf);
         const payload = contentBuf.toString('utf8').replace(/\0/g, '').trim();
 
-        const sinContenido =
-          !payload ||
-          payload === '[]' ||
-          payload === '{}' ||
-          (payload.includes('<') && !/<alert\b/i.test(payload));
+        const hayAvisos = Boolean(payload) && hayAvisosActivosCastellon(payload, ahora);
 
-        if (sinContenido) {
+        if (!hayAvisos) {
           resultado = {
             tipo: 'SIN_AVISOS',
             actualizado: new Date().toISOString(),
