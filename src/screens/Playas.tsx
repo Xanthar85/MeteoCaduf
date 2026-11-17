@@ -185,24 +185,34 @@ export default function Playas() {
       {error && <p style={{ textAlign: 'center', color: '#f39c12' }}>{error}</p>}
 
       {!cargando && !error && (
-        <div style={{ background: 'rgba(255,255,255,0.1)', padding: '16px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '14px' }}>{playa}</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {franjas.map((f, i) => (
-              <div key={i} style={{ padding: '14px', background: 'rgba(0,0,0,0.25)', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--accent-color)' }}>{f.nombre}</span>
-                  <span style={{ fontSize: '0.95rem', opacity: 0.8 }}>{f.dia}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          {franjas.map((f, i) => (
+            <div key={i} style={{ background: 'rgba(255,255,255,0.1)', padding: '16px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+              <h2 style={{ fontSize: '1.2rem', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <span>{f.nombre} · {playa}</span>
+                <span style={{ fontSize: '0.9rem', color: 'var(--accent-color)', fontWeight: 'bold' }}>{f.dia}</span>
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>🌊 Oleaje</p>
+                  <p style={{ fontSize: 'clamp(1.7rem, 7vw, 2.2rem)', fontWeight: 'bold', lineHeight: 1.1 }}>{f.oleaje.toFixed(1)} m</p>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '1.05rem' }}>
-                  <div>🌊 Oleaje: <strong style={{ fontSize: '1.2rem' }}>{f.oleaje.toFixed(1)} m</strong></div>
-                  <div>⏱️ Periodo: <strong style={{ fontSize: '1.2rem' }}>{f.periodo.toFixed(1)} s</strong></div>
-                  <div>🌡️ Agua: <strong style={{ fontSize: '1.2rem' }}>{f.tempAgua.toFixed(1)} °C</strong></div>
-                  <div>☀️ UV: <strong style={{ fontSize: '1.2rem' }}>{f.uv.toFixed(1)} ({getNivelUV(f.uv)})</strong></div>
+                <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>⏱️ Periodo</p>
+                  <p style={{ fontSize: 'clamp(1.7rem, 7vw, 2.2rem)', fontWeight: 'bold', lineHeight: 1.1 }}>{f.periodo.toFixed(1)} s</p>
+                </div>
+                <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>🌡️ Agua</p>
+                  <p style={{ fontSize: 'clamp(1.7rem, 7vw, 2.2rem)', fontWeight: 'bold', lineHeight: 1.1 }}>{f.tempAgua.toFixed(1)}°C</p>
+                </div>
+                <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>☀️ UV</p>
+                  <p style={{ fontSize: 'clamp(1.7rem, 7vw, 2.2rem)', fontWeight: 'bold', lineHeight: 1.1 }}>{f.uv.toFixed(1)}</p>
+                  <p style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '2px' }}>{getNivelUV(f.uv)}</p>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
