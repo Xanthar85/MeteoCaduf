@@ -25,14 +25,14 @@ body {
 }
 
 .app-container {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   position: relative;
-  overflow-x: hidden;
 }
 
 .app-container::before {
@@ -47,10 +47,41 @@ body {
   position: relative;
   z-index: 1;
   flex: 1;
-  padding: 14px;
-  padding-bottom: calc(var(--nav-height) + 18px);
+  min-height: 0;
+  padding: 14px 14px 0;
+  padding-bottom: var(--nav-height);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.tabs-carousel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0 -14px;
+  touch-action: pan-x pan-y;
+}
+
+.tabs-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 0 14px 18px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .bottom-nav {
@@ -66,6 +97,18 @@ body {
   backdrop-filter: blur(10px);
   height: var(--nav-height);
   align-items: center;
+}
+
+.aviso-no-oficial {
+  margin: 0 -14px;
+  padding: 6px 12px;
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  color: var(--accent-color);
+  background: rgba(0, 0, 0, 0.72);
+  border-top: 1px solid rgba(243, 156, 18, 0.28);
+  flex-shrink: 0;
 }
 
 .bottom-nav button {

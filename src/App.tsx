@@ -1,19 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Inicio from './screens/Inicio'
 import Prevision from './screens/Prevision'
 import Playas from './screens/Playas'
 import { Analytics } from '@vercel/analytics/react';
+
+const TABS = ['inicio', 'prevision', 'playas'] as const
+type Tab = (typeof TABS)[number]
 
 const FOTOS = [
   "https://upload.wikimedia.org/wikipedia/commons/6/67/Antiga_pres%C3%B3_de_Benicarl%C3%B3.jpg",
   "https://upload.wikimedia.org/wikipedia/commons/e/e7/Esgl%C3%A9sia_de_Sant_Bartomeu.JPG",
   "https://upload.wikimedia.org/wikipedia/commons/6/66/Casa_Marqu%C3%A9s_de_Benicarl%C3%B3.JPG",
   "https://upload.wikimedia.org/wikipedia/commons/0/09/Ajuntament_de_Benicarl%C3%B3.webp",
-  "https://upload.wikimedia.org/wikipedia/commons/c/c9/Estacionblo.jpg"
+  "https://upload.wikimedia.org/wikipedia/commons/c/c9/Estacionblo.jpg",
+  "/assets/aistudio/42230594_2200784209962793_3410670032680648704_n_08595981.jpg",
+  "/assets/aistudio/65482738_1237103823138152_4051430031702884352_n_e9b20897.jpg",
+  "/assets/aistudio/65830724_2804326032941938_8242227431423868928_n_91e67df3.jpg",
+  "/assets/aistudio/65961970_1237103806471487_716257389417857024_n_aa8dfeb6.jpg",
+  "/assets/aistudio/830188050_1591793512993097_6114515605583001609_n_2eafba68.jpg"
 ]
 
 export default function App() {
-  const [tab, setTab] = useState<'inicio' | 'prevision' | 'playas'>(() => {
+  const [tab, setTab] = useState<Tab>(() => {
     const guardado = localStorage.getItem('meteocaduf_tab')
     if (guardado === 'inicio' || guardado === 'prevision' || guardado === 'playas') {
       return guardado
@@ -23,6 +31,9 @@ export default function App() {
   const [fotoActual, setFotoActual] = useState(FOTOS[0])
   const [bannerInstalacion, setBannerInstalacion] = useState(false)
   const [eventoInstalacion, setEventoInstalacion] = useState<any>(null)
+  const carouselRef = useRef<HTMLDivElement | null>(null)
+  const bloqueandoScrollRef = useRef(false)
+  const scrollTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
     localStorage.setItem('meteocaduf_tab', tab)
@@ -65,6 +76,51 @@ export default function App() {
       alert('Tu navegador no soporta la función de compartir. Puedes copiar la URL: ' + window.location.origin);
     }
   };
+
+  useEffect(() => {
+    const el = carouselRef.current
+    if (!el) return
+    const idx = TABS.indexOf(tab)
+    el.scrollTo({ left: idx * el.clientWidth, behavior: 'auto' })
+  }, [])
+
+  useEffect(() => {
+    const manejarResize = () => {
+      const el = carouselRef.current
+      if (!el) return
+      const idx = TABS.indexOf(tab)
+      el.scrollTo({ left: idx * el.clientWidth, behavior: 'auto' })
+    }
+    window.addEventListener('resize', manejarResize)
+    return () => window.removeEventListener('resize', manejarResize)
+  }, [tab])
+
+  const irAPestana = (nuevaTab: Tab) => {
+    setTab(nuevaTab)
+    const el = carouselRef.current
+    if (!el) return
+    const idx = TABS.indexOf(nuevaTab)
+    bloqueandoScrollRef.current = true
+    el.scrollTo({ left: idx * el.clientWidth, behavior: 'smooth' })
+    if (scrollTimerRef.current) window.clearTimeout(scrollTimerRef.current)
+    scrollTimerRef.current = window.setTimeout(() => {
+      bloqueandoScrollRef.current = false
+    }, 450)
+  }
+
+  const manejarScrollCarrusel = () => {
+    if (bloqueandoScrollRef.current) return
+    if (scrollTimerRef.current) window.clearTimeout(scrollTimerRef.current)
+    scrollTimerRef.current = window.setTimeout(() => {
+      const el = carouselRef.current
+      if (!el || el.clientWidth === 0) return
+      const idx = Math.round(el.scrollLeft / el.clientWidth)
+      const nuevaTab = TABS[Math.max(0, Math.min(TABS.length - 1, idx))]
+      if (nuevaTab !== tab) {
+        setTab(nuevaTab)
+      }
+    }, 70)
+  }
 
   return (
     <div className="app-container" style={{ backgroundImage: `url(${fotoActual})` }}>
@@ -178,19 +234,35 @@ export default function App() {
           </div>
         )}
 
-        {tab === 'inicio' && <Inicio />}
-        {tab === 'prevision' && <Prevision />}
-        {tab === 'playas' && <Playas />}
+        <div
+          ref={carouselRef}
+          className="tabs-carousel"
+          onScroll={manejarScrollCarrusel}
+        >
+          <div className="tab-slide">
+            <Inicio />
+          </div>
+          <div className="tab-slide">
+            <Prevision />
+          </div>
+          <div className="tab-slide">
+            <Playas />
+          </div>
+        </div>
+
+        <p className="aviso-no-oficial">
+          App meteorológica no oficial de carácter informativo.
+        </p>
       </div>
 
       <nav className="bottom-nav">
-        <button className={tab === 'inicio' ? 'active' : ''} onClick={() => setTab('inicio')}>
+        <button className={tab === 'inicio' ? 'active' : ''} onClick={() => irAPestana('inicio')}>
           Ahora
         </button>
-        <button className={tab === 'prevision' ? 'active' : ''} onClick={() => setTab('prevision')}>
+        <button className={tab === 'prevision' ? 'active' : ''} onClick={() => irAPestana('prevision')}>
           Previsión
         </button>
-        <button className={tab === 'playas' ? 'active' : ''} onClick={() => setTab('playas')}>
+        <button className={tab === 'playas' ? 'active' : ''} onClick={() => irAPestana('playas')}>
           Playas
         </button>
       </nav>
