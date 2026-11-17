@@ -209,28 +209,30 @@ export default function Prevision() {
             return (
               <div key={dia.date} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '8px', overflow: 'hidden' }}>
                 <div 
-                  style={{ padding: '12px', cursor: 'pointer' }}
+                  style={{ padding: '14px 16px', cursor: 'pointer' }}
                   onClick={() => {
                     const siguiente = expandido ? null : dia.date
                     setDiaExpandido(siguiente)
                     setHorasExpandidas(siguiente)
                   }}
                 >
-                  <div style={{ fontWeight: 'bold', color: 'var(--accent-color)', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--accent-color)', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>{nombreDia}</span>
                     <span>{expandido ? '▲' : '▼'}</span>
                   </div>
-                  <div className="card-row">
-                    <span style={{ fontSize: '1.5rem' }}>{getIcono(dia.weather_code)}</span>
-                    <span><span style={{ color: '#e74c3c' }}>{tempMax}°</span> / <span style={{ color: '#3498db' }}>{tempMin}°</span></span>
-                    <span>{precip} mm</span>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px 12px', alignItems: 'center', fontSize: '1.05rem' }}>
+                    <span style={{ fontSize: '1.7rem', lineHeight: 1 }}>{getIcono(dia.weather_code)}</span>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                      <span style={{ color: '#e74c3c' }}>{tempMax}°</span> / <span style={{ color: '#3498db' }}>{tempMin}°</span>
+                    </span>
+                    <span style={{ textAlign: 'right', fontWeight: 600 }}>{precip} mm</span>
                     <span>💨 {viento} km/h</span>
                     <span>HR: {hr}%</span>
-                    <span>UV: {uv}</span>
+                    <span style={{ textAlign: 'right' }}>UV: {uv}</span>
                   </div>
                 </div>
                 {expandido && (
-                  <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.95rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {horasDelDia.length === 0 ? (
                       <p style={{ opacity: 0.7, textAlign: 'center' }}>No hay datos por horas disponibles.</p>
                     ) : (
@@ -247,12 +249,12 @@ export default function Prevision() {
                           <div
                             key={t}
                             className="card-row"
-                            style={{ padding: '6px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }}
+                            style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }}
                           >
                             <span style={{ fontWeight: 'bold', color: 'var(--accent-color)' }}>{t.slice(11, 16)}</span>
-                            <span style={{ fontSize: '1.1rem' }}>{getIcono(codeH)}</span>
+                            <span style={{ fontSize: '1.25rem' }}>{getIcono(codeH)}</span>
                             <span>{precipH === null || precipH === undefined ? '-' : `${precipH.toFixed(1)} mm`}</span>
-                            <span>{tempH === null || tempH === undefined ? '-' : `${Math.round(tempH)}°C`}</span>
+                            <span style={{ fontWeight: 'bold' }}>{tempH === null || tempH === undefined ? '-' : `${Math.round(tempH)}°C`}</span>
                             <span>💨 {vientoH === null || vientoH === undefined ? '-' : `${Math.round(vientoH)} km/h`}</span>
                             <span>Rachas: {rachasH === null || rachasH === undefined ? '-' : `${Math.round(rachasH)} km/h`}</span>
                             <span>HR: {hrH === null || hrH === undefined ? '-' : `${Math.round(hrH)}%`}</span>
