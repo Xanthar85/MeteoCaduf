@@ -160,7 +160,7 @@ export default function Playas() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '18px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '16px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
         <label style={{ fontSize: '0.95rem', opacity: 0.75, display: 'block', marginBottom: '8px' }}>Elige playa</label>
         <select
           value={playa}
@@ -172,7 +172,7 @@ export default function Playas() {
             border: 'none',
             background: 'rgba(0,0,0,0.3)',
             color: 'var(--text-color)',
-            fontSize: '1.05rem',
+            fontSize: '1.1rem',
           }}
         >
           {PLAYAS.map((p) => (
@@ -185,20 +185,20 @@ export default function Playas() {
       {error && <p style={{ textAlign: 'center', color: '#f39c12' }}>{error}</p>}
 
       {!cargando && !error && (
-        <div style={{ background: 'rgba(255,255,255,0.1)', padding: '18px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '16px' }}>{playa}</h2>
+        <div style={{ background: 'rgba(255,255,255,0.1)', padding: '16px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+          <h2 style={{ fontSize: '1.25rem', marginBottom: '14px' }}>{playa}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {franjas.map((f, i) => (
-              <div key={i} style={{ padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
+              <div key={i} style={{ padding: '14px', background: 'rgba(0,0,0,0.25)', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--accent-color)' }}>{f.nombre}</span>
-                  <span style={{ fontSize: '0.95rem', opacity: 0.75 }}>{f.dia}</span>
+                  <span style={{ fontSize: '0.95rem', opacity: 0.8 }}>{f.dia}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '1.05rem' }}>
-                  <div>🌊 Oleaje: <strong>{f.oleaje.toFixed(1)} m</strong></div>
-                  <div>⏱️ Periodo: <strong>{f.periodo.toFixed(1)} s</strong></div>
-                  <div>🌡️ Agua: <strong>{f.tempAgua.toFixed(1)} °C</strong></div>
-                  <div>☀️ UV: <strong>{f.uv.toFixed(1)} ({getNivelUV(f.uv)})</strong></div>
+                  <div>🌊 Oleaje: <strong style={{ fontSize: '1.2rem' }}>{f.oleaje.toFixed(1)} m</strong></div>
+                  <div>⏱️ Periodo: <strong style={{ fontSize: '1.2rem' }}>{f.periodo.toFixed(1)} s</strong></div>
+                  <div>🌡️ Agua: <strong style={{ fontSize: '1.2rem' }}>{f.tempAgua.toFixed(1)} °C</strong></div>
+                  <div>☀️ UV: <strong style={{ fontSize: '1.2rem' }}>{f.uv.toFixed(1)} ({getNivelUV(f.uv)})</strong></div>
                 </div>
               </div>
             ))}

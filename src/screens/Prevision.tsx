@@ -174,13 +174,13 @@ export default function Prevision() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '14px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', gap: '8px' }}>
           <h2 style={{ fontSize: '1.2rem' }}>Previsión 7 días</h2>
           <select 
             value={modelo} 
             onChange={(e) => setModelo(e.target.value)}
-            style={{ padding: '5px', borderRadius: '5px', background: '#333', color: 'white', border: '1px solid #555' }}
+            style={{ padding: '6px 8px', borderRadius: '6px', background: '#333', color: 'white', border: '1px solid #555', fontSize: '0.95rem' }}
           >
             <option value="meteofrance_arome_france_hd">AROME</option>
             <option value="icon_seamless">ICON</option>
@@ -207,9 +207,9 @@ export default function Prevision() {
               : []
 
             return (
-              <div key={dia.date} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '8px', overflow: 'hidden' }}>
+              <div key={dia.date} style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', overflow: 'hidden' }}>
                 <div 
-                  style={{ padding: '14px 16px', cursor: 'pointer' }}
+                  style={{ padding: '14px', cursor: 'pointer' }}
                   onClick={() => {
                     const siguiente = expandido ? null : dia.date
                     setDiaExpandido(siguiente)
@@ -220,19 +220,21 @@ export default function Prevision() {
                     <span>{nombreDia}</span>
                     <span>{expandido ? '▲' : '▼'}</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px 12px', alignItems: 'center', fontSize: '1.05rem' }}>
-                    <span style={{ fontSize: '1.7rem', lineHeight: 1 }}>{getIcono(dia.weather_code)}</span>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '1.9rem', lineHeight: 1 }}>{getIcono(dia.weather_code)}</span>
+                    <span style={{ fontSize: '1.35rem', fontWeight: 'bold' }}>
                       <span style={{ color: '#e74c3c' }}>{tempMax}°</span> / <span style={{ color: '#3498db' }}>{tempMin}°</span>
                     </span>
-                    <span style={{ textAlign: 'right', fontWeight: 600 }}>{precip} mm</span>
+                    <span style={{ fontSize: '1.15rem', fontWeight: 600 }}>{precip} mm</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', fontSize: '1rem', opacity: 0.95 }}>
                     <span>💨 {viento} km/h</span>
                     <span>HR: {hr}%</span>
-                    <span style={{ textAlign: 'right' }}>UV: {uv}</span>
+                    <span>UV: {uv}</span>
                   </div>
                 </div>
                 {expandido && (
-                  <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.95rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ padding: '10px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.95rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {horasDelDia.length === 0 ? (
                       <p style={{ opacity: 0.7, textAlign: 'center' }}>No hay datos por horas disponibles.</p>
                     ) : (
@@ -248,17 +250,20 @@ export default function Prevision() {
                         return (
                           <div
                             key={t}
-                            className="card-row"
-                            style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }}
+                            style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}
                           >
-                            <span style={{ fontWeight: 'bold', color: 'var(--accent-color)' }}>{t.slice(11, 16)}</span>
-                            <span style={{ fontSize: '1.25rem' }}>{getIcono(codeH)}</span>
-                            <span>{precipH === null || precipH === undefined ? '-' : `${precipH.toFixed(1)} mm`}</span>
-                            <span style={{ fontWeight: 'bold' }}>{tempH === null || tempH === undefined ? '-' : `${Math.round(tempH)}°C`}</span>
-                            <span>💨 {vientoH === null || vientoH === undefined ? '-' : `${Math.round(vientoH)} km/h`}</span>
-                            <span>Rachas: {rachasH === null || rachasH === undefined ? '-' : `${Math.round(rachasH)} km/h`}</span>
-                            <span>HR: {hrH === null || hrH === undefined ? '-' : `${Math.round(hrH)}%`}</span>
-                            <span>UV: {uvH === null || uvH === undefined ? '-' : uvH.toFixed(1)}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--accent-color)' }}>{t.slice(11, 16)}</span>
+                              <span style={{ fontSize: '1.35rem', lineHeight: 1 }}>{getIcono(codeH)}</span>
+                              <span style={{ fontWeight: 'bold', fontSize: '1.15rem' }}>{tempH === null || tempH === undefined ? '-' : `${Math.round(tempH)}°C`}</span>
+                              <span style={{ fontWeight: 600 }}>{precipH === null || precipH === undefined ? '-' : `${precipH.toFixed(1)} mm`}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px 10px', fontSize: '0.9rem', opacity: 0.9 }}>
+                              <span>💨 {vientoH === null || vientoH === undefined ? '-' : `${Math.round(vientoH)} km/h`}</span>
+                              <span>Rachas: {rachasH === null || rachasH === undefined ? '-' : `${Math.round(rachasH)} km/h`}</span>
+                              <span>HR: {hrH === null || hrH === undefined ? '-' : `${Math.round(hrH)}%`}</span>
+                              <span>UV: {uvH === null || uvH === undefined ? '-' : uvH.toFixed(1)}</span>
+                            </div>
                           </div>
                         )
                       })

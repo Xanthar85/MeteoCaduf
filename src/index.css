@@ -2,11 +2,11 @@
   --bg-color: #1a1a1a;
   --text-color: #f4f4f4;
   --accent-color: #f39c12;
-  --nav-height: 64px;
+  --nav-height: 70px;
 }
 
 html {
-  font-size: max(clamp(16.5px, 4.2vw, 18.5px), 1rem);
+  font-size: max(clamp(20px, 5.2vw, 23px), 1rem);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -47,8 +47,8 @@ body {
   position: relative;
   z-index: 1;
   flex: 1;
-  padding: 20px;
-  padding-bottom: calc(var(--nav-height) + 20px);
+  padding: 14px;
+  padding-bottom: calc(var(--nav-height) + 18px);
   display: flex;
   flex-direction: column;
 }
@@ -72,8 +72,9 @@ body {
   background: none;
   border: none;
   color: var(--text-color);
-  font-size: 1rem;
-  opacity: 0.6;
+  font-size: 1.05rem;
+  font-weight: 600;
+  opacity: 0.65;
   cursor: pointer;
 }
 

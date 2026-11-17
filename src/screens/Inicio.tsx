@@ -14,10 +14,10 @@ type DatosAvamet = {
 
 const AVAMET_MOCK: DatosAvamet = {
   temp: '16,7',
-  humedad: '81%',
-  viento: '5 km/h NO',
+  humedad: '81',
+  viento: '5',
   direccion: 'NO',
-  lluvia: '0,0mm',
+  lluvia: '0,0',
   presion: '1.016',
   tempMax: '20,1',
   tempMin: '14,5',
@@ -199,8 +199,8 @@ export default function Inicio() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '22px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '10px' }}>
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '16px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '8px' }}>
           Datos Actuales (AVAMET)
           {esMockAvamet && (
             <span style={{ fontSize: '0.8rem', opacity: 0.7, fontWeight: 'normal', marginLeft: '8px' }}>
@@ -209,43 +209,43 @@ export default function Inicio() {
           )}
         </h2>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' }}>
-          <div>
-            <p style={{ fontSize: '0.9rem', opacity: 0.75, marginBottom: '4px' }}>Temperatura</p>
-            <p style={{ fontSize: 'clamp(1.6rem, 6vw, 2rem)', fontWeight: 'bold' }}>{datos.temp}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ gridColumn: '1 / -1', background: 'rgba(0,0,0,0.28)', borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.9rem', opacity: 0.8, marginBottom: '4px' }}>Temperatura</p>
+            <p style={{ fontSize: 'clamp(2.5rem, 11vw, 3.2rem)', fontWeight: 'bold', lineHeight: 1.05 }}>{datos.temp}°C</p>
           </div>
-          <div>
-            <p style={{ fontSize: '0.9rem', opacity: 0.75, marginBottom: '4px' }}>Humedad</p>
-            <p style={{ fontSize: 'clamp(1.6rem, 6vw, 2rem)', fontWeight: 'bold' }}>{datos.humedad}</p>
+          <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>Máx Registrada</p>
+            <p style={{ fontSize: 'clamp(1.7rem, 7vw, 2.2rem)', fontWeight: 'bold', color: '#e74c3c', lineHeight: 1.1 }}>{datos.tempMax}°</p>
           </div>
-          <div>
-            <p style={{ fontSize: '0.9rem', opacity: 0.75, marginBottom: '4px' }}>Viento</p>
-            <p style={{ fontSize: 'clamp(1.45rem, 5.2vw, 1.85rem)', fontWeight: 'bold' }}>
+          <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>Mín Registrada</p>
+            <p style={{ fontSize: 'clamp(1.7rem, 7vw, 2.2rem)', fontWeight: 'bold', color: '#3498db', lineHeight: 1.1 }}>{datos.tempMin}°</p>
+          </div>
+          <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>Humedad</p>
+            <p style={{ fontSize: 'clamp(1.7rem, 7vw, 2.2rem)', fontWeight: 'bold', lineHeight: 1.1 }}>{datos.humedad}%</p>
+          </div>
+          <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>Presión (hPa)</p>
+            <p style={{ fontSize: 'clamp(1.6rem, 6.5vw, 2.1rem)', fontWeight: 'bold', lineHeight: 1.1 }}>{datos.presion}</p>
+          </div>
+          <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>Viento (km/h)</p>
+            <p style={{ fontSize: 'clamp(1.5rem, 6vw, 2rem)', fontWeight: 'bold', lineHeight: 1.1 }}>
               {datos.viento}
               {datos.direccion && datos.direccion !== 'N/D' && !datos.viento.includes(datos.direccion) ? ` ${datos.direccion}` : ''}
             </p>
           </div>
-          <div>
-            <p style={{ fontSize: '0.9rem', opacity: 0.75, marginBottom: '4px' }}>Lluvia</p>
-            <p style={{ fontSize: 'clamp(1.6rem, 6vw, 2rem)', fontWeight: 'bold' }}>{datos.lluvia}</p>
-          </div>
-          <div>
-            <p style={{ fontSize: '0.9rem', opacity: 0.75, marginBottom: '4px' }}>Presión (hPa)</p>
-            <p style={{ fontSize: 'clamp(1.6rem, 6vw, 2rem)', fontWeight: 'bold' }}>{datos.presion}</p>
-          </div>
-          <div>
-            <p style={{ fontSize: '0.9rem', opacity: 0.75, marginBottom: '4px' }}>Máx Registrada (ºC)</p>
-            <p style={{ fontSize: 'clamp(1.6rem, 6vw, 2rem)', fontWeight: 'bold' }}>{datos.tempMax}</p>
-          </div>
-          <div>
-            <p style={{ fontSize: '0.9rem', opacity: 0.75, marginBottom: '4px' }}>Mín Registrada (ºC)</p>
-            <p style={{ fontSize: 'clamp(1.6rem, 6vw, 2rem)', fontWeight: 'bold' }}>{datos.tempMin}</p>
+          <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '4px' }}>Lluvia (mm)</p>
+            <p style={{ fontSize: 'clamp(1.7rem, 7vw, 2.2rem)', fontWeight: 'bold', lineHeight: 1.1 }}>{datos.lluvia}</p>
           </div>
         </div>
       </div>
 
-      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '22px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '16px' }}>Tiempo</h2>
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '16px', borderRadius: '12px', backdropFilter: 'blur(10px)' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '14px' }}>Tiempo</h2>
         {errorTiempo ? (
           <p style={{ color: '#f39c12', fontSize: '0.95rem' }}>
             No se pudieron cargar los datos de Open-Meteo ({errorTiempo}).
@@ -253,15 +253,19 @@ export default function Inicio() {
         ) : (
           <div className="card-container">
             {franjasMostrar.map((franja, i) => (
-              <div key={i} style={{ padding: '14px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+              <div key={i} style={{ padding: '14px', background: 'rgba(0,0,0,0.25)', borderRadius: '10px' }}>
                 <div style={{ fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--accent-color)', marginBottom: '10px' }}>
                   {franja.dia} - {franja.nombre}
                 </div>
-                <div className="card-row" style={{ fontSize: '1.05rem' }}>
-                  <span style={{ fontSize: '1.7rem' }}>{getIcono(franja.weather_code)}</span>
-                  <span style={{ fontSize: '1.2rem' }}><strong>{Math.round(franja.tempMedia)}°</strong></span>
-                  <span>{franja.precipTotal.toFixed(1)} mm</span>
-                  <span>💨 {Math.round(franja.vientoMedio)} km/h</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '1.8rem', lineHeight: 1 }}>{getIcono(franja.weather_code)}</span>
+                    <span style={{ fontSize: '1.35rem', fontWeight: 'bold' }}>{Math.round(franja.tempMedia)}°</span>
+                  </div>
+                  <span style={{ fontSize: '1.1rem', fontWeight: 600 }}>{franja.precipTotal.toFixed(1)} mm</span>
+                  <span style={{ fontSize: '1.05rem' }}>💨 {Math.round(franja.vientoMedio)} km/h</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', fontSize: '0.95rem', opacity: 0.9 }}>
                   <span>Rachas: {Math.round(franja.rachasMax)} km/h</span>
                   <span>HR: {Math.round(franja.humedadMedia)}%</span>
                   <span>UV: {franja.uvMax.toFixed(1)}</span>
